@@ -24,7 +24,8 @@ export const OPCIONES_POR_TIPO = {
 export const MINIMO_POOL = 4
 
 // Verbos que se confunden al representarlos: nunca salen juntos en la misma
-// pregunta de Mímica. Pendiente de revisión (ver NOTAS_VERBOS.md).
+// pregunta de Mímica. Un verbo puede estar en varios grupos.
+// Pendiente de revisión (ver NOTAS_VERBOS.md).
 export const GRUPOS_AMBIGUOS = [
   ['see', 'look', 'watch'],
   ['hear', 'listen'],
@@ -37,4 +38,11 @@ export const GRUPOS_AMBIGUOS = [
   ['make', 'build', 'cook'],
   ['sit', 'stand'],
   ['buy', 'sell'],
+  // Por parecido de emoji
+  ['like', 'love'],
+  ['clean', 'wash'],
+  ['look', 'find'],
+  ['eat', 'cook'],
+  ['help', 'meet'],
+  ['catch', 'hold', 'take'],
 ]

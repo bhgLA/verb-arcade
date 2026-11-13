@@ -223,14 +223,23 @@ describe('secuenciaSemanal', () => {
 })
 
 describe('configuración', () => {
-  test('todos los verbos de los grupos ambiguos existen y no se repiten entre grupos', () => {
-    const vistos = new Set()
+  test('los grupos ambiguos son válidos: verbos existentes, sin repetir dentro del grupo ni grupos duplicados', () => {
+    const firmas = new Set()
     for (const grupo of GRUPOS_AMBIGUOS) {
-      for (const v of grupo) {
-        assert.ok(porVerbo.has(v), `${v} no está en verbos.json`)
-        assert.ok(!vistos.has(v), `${v} está en dos grupos`)
-        vistos.add(v)
-      }
+      assert.ok(grupo.length >= 2, `grupo con menos de 2 verbos: ${grupo}`)
+      assert.equal(new Set(grupo).size, grupo.length, `verbo repetido en el grupo ${grupo}`)
+      for (const v of grupo) assert.ok(porVerbo.has(v), `${v} no está en verbos.json`)
+      const firma = [...grupo].sort().join(',')
+      assert.ok(!firmas.has(firma), `grupo duplicado: ${grupo}`)
+      firmas.add(firma)
     }
+  })
+
+  test('un verbo en dos grupos choca con los miembros de ambos', () => {
+    assert.ok(mismoGrupoAmbiguo('look', 'see'))
+    assert.ok(mismoGrupoAmbiguo('look', 'find'))
+    assert.ok(!mismoGrupoAmbiguo('see', 'find'))
+    assert.ok(mismoGrupoAmbiguo('take', 'catch'))
+    assert.ok(mismoGrupoAmbiguo('take', 'give'))
   })
 })
