@@ -6,11 +6,14 @@ create table if not exists public.game_limits (
   game text primary key,
   max_score int not null check (max_score > 0)
 );
--- Valores provisionales: ajustar cuando el juego esté equilibrado (máximo teórico + margen).
+-- verb_pop: máximo teórico de una partida de 75 s (14850) + 10 % = 16335.
+--   Se calcula en src/motor/puntuacion.js (limiteServidor); ver NOTAS_VERBOS.md.
+-- mimica: provisional hasta equilibrar Mímica (paso 4).
+-- "do update" para que volver a pegar este fichero actualice los límites.
 insert into public.game_limits (game, max_score) values
-  ('verb_pop', 6000),
+  ('verb_pop', 16335),
   ('mimica',   6000)
-on conflict (game) do nothing;
+on conflict (game) do update set max_score = excluded.max_score;
 
 create table if not exists public.verb_scores (
   id          bigint generated always as identity primary key,
