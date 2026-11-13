@@ -74,6 +74,6 @@ Por combo:
 
 Suman 13 000. El bonus máximo es 50 en cada uno de los 37 aciertos, 1 850 más. Total: 14 850.
 
-El bonus mide qué parte quedaba de la ventana en la que se puede responder, desde que se desbloquea hasta que el bloque toca el suelo. Por eso responder justo al desbloquearse da 50 en cualquier mundo, y el máximo no depende del mundo de la semana aunque los bloques caigan más deprisa. Un test juega una partida perfecta en cada uno de los 10 mundos y saca exactamente 14 850. Otros 300 tests con partidas al azar nunca lo superan.
+El bonus mide qué parte quedaba de la ventana en la que se puede responder, desde que se desbloquea hasta que el bloque toca el suelo. Por eso responder justo al desbloquearse da 50 en cualquier mundo, y el máximo no depende del mundo de la semana aunque los bloques caigan más deprisa. Un test juega una partida perfecta en cada uno de los 10 mundos y saca exactamente 14 850. Otro test juega 300 partidas al azar y ninguna lo supera.
 
 El 6 000 de antes se quedaba corto: una partida buena de verdad lo pasaría. El de `mimica` sigue en 6 000, provisional, hasta el paso 4. He cambiado el `on conflict ... do nothing` por `do update`: así, si ya habías pegado el SQL, volver a pegarlo actualiza los límites.
