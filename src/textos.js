@@ -15,6 +15,33 @@ export const textos = {
   volver: 'Back',
   mundo: (n) => `World ${n}`,
   fraccion: (x, total) => `${x}/${total}`,
+  numero: (n) => n.toLocaleString('en-US'),
+
+  // Nombre de cada mundo (1-10) para los chips: "World 2: Reef".
+  mundos: ['Sunrise', 'Reef', 'Grove', 'Plum', 'Lagoon', 'Berry', 'Dusk', 'Moss', 'Cocoa', 'Graphite'],
+  chipMundo: (n) => `World ${n}: ${textos.mundos[n - 1]}`,
+
+  // Etiqueta pequeña encima del verbo del reto.
+  etiquetas: {
+    pasado: 'Past of',
+    participio: 'Participle of',
+    significado: '¿Qué significa?',
+    mimica: '¿Qué verbo es?',
+  },
+
+  // Botones redondos (icono + nombre accesible).
+  botones: {
+    volver: 'Back',
+    pausa: 'Pause',
+    pista: 'Hint',
+    escuchar: 'Listen',
+    traducir: 'Translate',
+    cerrar: 'Close',
+  },
+
+  ranking: {
+    pronto: 'Weekly ranking · coming soon',
+  },
 
   // Enunciados de las preguntas. En mímica el enunciado es el propio emoji.
   preguntas: {
@@ -66,6 +93,11 @@ export const textos = {
     score: 'Score',
     tiempo: 'Time',
     vidas: (n) => `${n} vidas`,
+    vidasRestantes: (n, total) => `${n} of ${total} lives left`,
+    reloj: (ms) => {
+      const s = Math.ceil(ms / 1000)
+      return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
+    },
     combo: 'Combo',
     semana: (semana, mundo) => (mundo === 1 ? `${semana} · world 1` : `${semana} · worlds 1-${mundo}`),
     empezar: 'Start',
