@@ -1,11 +1,12 @@
-// Progreso del modo estudio: aciertos por verbo. Se completa en el paso 2.
+// Progreso del modo estudio en localStorage: { [verb]: { aciertos, fallos, desbloqueada } }.
+// Si el navegador no deja guardar, el juego sigue y el progreso dura lo que la pestaña.
 import { leer, guardar } from './almacen.js'
+import { normalizarProgreso } from '../motor/estudio.js'
 
 const CLAVE = 'progreso'
 
 export function leerProgreso() {
-  const p = leer(CLAVE, {})
-  return p && typeof p === 'object' && !Array.isArray(p) ? p : {}
+  return normalizarProgreso(leer(CLAVE, {}))
 }
 
 export function guardarProgreso(progreso) {

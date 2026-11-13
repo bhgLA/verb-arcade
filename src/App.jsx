@@ -2,6 +2,7 @@ import { useRuta, Enlace } from './rutas.jsx'
 import { textos } from './textos.js'
 import Inicio from './paginas/Inicio.jsx'
 import Estudio from './paginas/Estudio.jsx'
+import SesionEstudio from './paginas/SesionEstudio.jsx'
 import Reto from './paginas/Reto.jsx'
 import Cartas from './paginas/Cartas.jsx'
 import Ranking from './paginas/Ranking.jsx'
@@ -24,7 +25,10 @@ function NoEncontrada() {
 }
 
 export default function App() {
-  const ruta = useRuta()
-  const Pagina = PAGINAS[ruta.replace(/\/+$/, '') || '/'] ?? NoEncontrada
+  const ruta = useRuta().replace(/\/+$/, '') || '/'
+  const sesion = /^\/estudio\/(\d{1,2})$/.exec(ruta)
+  const mundo = sesion ? Number(sesion[1]) : 0
+  if (mundo >= 1 && mundo <= 10) return <SesionEstudio key={mundo} mundo={mundo} />
+  const Pagina = PAGINAS[ruta] ?? NoEncontrada
   return <Pagina />
 }

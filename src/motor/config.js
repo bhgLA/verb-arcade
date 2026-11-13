@@ -23,6 +23,12 @@ export const OPCIONES_POR_TIPO = {
 // Mínimo de verbos que necesita una pool semanal.
 export const MINIMO_POOL = 4
 
+// Modo estudio: aciertos acumulados (no seguidos) que desbloquean la carta.
+export const ACIERTOS_PARA_CARTA = 3
+
+// Tipos de pregunta del modo estudio. Mímica solo si el verbo se puede mimar.
+export const TIPOS_ESTUDIO = ['pasado', 'participio', 'significado', 'mimica']
+
 // Verbos que se confunden al representarlos: nunca salen juntos en la misma
 // pregunta de Mímica. Un verbo puede estar en varios grupos.
 // Pendiente de revisión (ver NOTAS_VERBOS.md).
