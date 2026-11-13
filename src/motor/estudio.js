@@ -72,9 +72,12 @@ export function poolDeEstudio(verbos, mundo) {
   return verbos.filter((v) => v.world >= 1 && v.world <= mundo)
 }
 
-export function crearPreguntaEstudio(verbo, verbos, mundo, rng) {
+// `tipos` limita los tipos posibles (Verb Pop no usa mímica).
+export function crearPreguntaEstudio(verbo, verbos, mundo, rng, tipos = null) {
   const pool = poolDeEstudio(verbos, mundo)
-  return crearPregunta(elegir(tiposDeEstudio(verbo), rng), verbo, pool, rng)
+  const posibles = tiposDeEstudio(verbo).filter((t) => !tipos || tipos.includes(t))
+  if (!posibles.length) throw new Error(`"${verbo.verb}" no tiene tipos de pregunta posibles.`)
+  return crearPregunta(elegir(posibles, rng), verbo, pool, rng)
 }
 
 // Pista en español y una opción incorrecta que se puede tachar.

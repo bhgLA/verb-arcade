@@ -18,14 +18,16 @@ export default function Estudio() {
           const delMundo = verbos.filter((v) => v.world === n)
           const hechas = contarDesbloqueadas(progreso, delMundo)
           return (
-            <li key={n}>
-              <Enlace a={`/estudio/${n}`} className="boton mundo">
-                <span className="mundo__nombre">{textos.mundo(n)}</span>
-                <span className="mundo__progreso">{textos.estudio.cartasDelMundo(hechas, delMundo.length)}</span>
-                <span className="barra" aria-hidden="true">
-                  <span className="barra__relleno" style={{ width: `${(hechas / delMundo.length) * 100}%` }} />
-                </span>
-              </Enlace>
+            <li key={n} className="mundo">
+              <span className="mundo__nombre">{textos.mundo(n)}</span>
+              <span className="mundo__progreso">{textos.estudio.cartasDelMundo(hechas, delMundo.length)}</span>
+              <span className="barra" aria-hidden="true">
+                <span className="barra__relleno" style={{ width: `${(hechas / delMundo.length) * 100}%` }} />
+              </span>
+              <span className="mundo__juegos">
+                <Enlace a={`/estudio/${n}`} className="boton boton--pequeño">{textos.verbPop.quiz}</Enlace>
+                <Enlace a={`/estudio/${n}/pop`} className="boton boton--pequeño">{textos.verbPop.titulo}</Enlace>
+              </span>
             </li>
           )
         })}

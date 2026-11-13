@@ -29,6 +29,25 @@ export const ACIERTOS_PARA_CARTA = 3
 // Tipos de pregunta del modo estudio. Mímica solo si el verbo se puede mimar.
 export const TIPOS_ESTUDIO = ['pasado', 'participio', 'significado', 'mimica']
 
+// Verb Pop en estudio: los tres retos del brief ("significado" solo existe en estudio).
+export const TIPOS_VERB_POP_ESTUDIO = ['pasado', 'participio', 'significado']
+
+// Verb Pop. Tiempos en milisegundos.
+export const VERB_POP = {
+  duracionMs: 75_000,
+  vidas: 3,
+  puntosBase: 100,
+  bonusMax: 50, // bonus por rapidez: 50 si se responde nada más poder, 0 al llegar al suelo
+  comboCada: 3, // aciertos seguidos para subir un nivel de combo
+  comboMax: 4,
+  bloqueoMs: 1200, // anti-spam: un bloque nuevo no se puede responder antes de esto
+  pausaMs: 800, // entre un reto y el siguiente
+  caidaBaseMs: 6000, // tiempo hasta el suelo en el mundo 1
+  aumentoVelocidadPorMundo: 0.06, // +6 % de velocidad por cada mundo por encima del 1
+  margenServidor: 0.1, // margen sobre el máximo teórico para game_limits.max_score
+  lineaSeguraEstudio: 0.55, // en estudio los bloques se paran aquí (0 = arriba, 1 = suelo)
+}
+
 // Verbos que se confunden al representarlos: nunca salen juntos en la misma
 // pregunta de Mímica. Un verbo puede estar en varios grupos.
 // Pendiente de revisión (ver NOTAS_VERBOS.md).
