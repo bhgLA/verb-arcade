@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env.local
+.env.*.local
+.vercel/
+*.log
+.DS_Store
+Thumbs.db
+
+# Copia original del paquete; la que usa el juego es src/contenido/verbos.json
+/verbos.json
