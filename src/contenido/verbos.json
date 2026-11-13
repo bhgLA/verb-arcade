@@ -60,7 +60,7 @@
    "freq_rank_top100": 5,
    "world": 1,
    "mimica": true,
-   "emoji": "🚶"
+   "emoji": "➡️"
   },
   {
    "id": 5,
@@ -600,7 +600,7 @@
    "es": "aprender",
    "past": "learned",
    "participle": "learned",
-   "irregular": true,
+   "irregular": false,
    "category": "escuela",
    "cambridge_level": "starters",
    "freq_rank_top100": 58,
@@ -1180,7 +1180,7 @@
    "freq_rank_top100": 54,
    "world": 9,
    "mimica": true,
-   "emoji": "🤝"
+   "emoji": "🧑‍🤝‍🧑"
   },
   {
    "id": 85,

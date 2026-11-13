@@ -2,16 +2,22 @@
 
 Dudas detectadas al validar. No he cambiado nada en los datos: decide Bego.
 
-## learn marcado como irregular
+## learn marcado como irregular (resuelto)
 
-`learn` tiene `irregular: true`, pero sus formas son `learned / learned`, que son regulares. El propio fichero dice en `_source.notes` que se usa "learned" y no "learnt", así que parece que el `true` viene de la forma británica. Con "learned" debería ser `irregular: false`. Ahora mismo daría una pista falsa en estudio y contaría mal en cualquier filtro por irregulares.
+Resuelto el 13-11-2026: Bego lo cambió a `irregular: false`.
 
-## Emojis repetidos entre verbos de mímica
+`learn` tenía `irregular: true`, pero sus formas son `learned / learned`, que son regulares. El propio fichero dice en `_source.notes` que se usa "learned" y no "learnt", así que parece que el `true` viene de la forma británica. Con "learned" debería ser `irregular: false`. Ahora mismo daría una pista falsa en estudio y contaría mal en cualquier filtro por irregulares.
 
-- `go` y `walk` usan los dos 🚶.
-- `help` y `meet` usan los dos 🤝.
+## Emojis repetidos entre verbos de mímica (resuelto)
 
-En Mímica, si salen juntos en la misma pregunta (uno como respuesta y otro como distractor), las dos opciones serían correctas. `go` y `walk` son además del mismo `category` (movimiento), que es justo de donde se sacan los distractores. Hay dos salidas: cambiar uno de los emojis de cada pareja, o que el generador de preguntas no ponga juntos verbos con el mismo emoji. La segunda la puedo hacer en el paso 1 sin tocar los datos.
+Resuelto el 13-11-2026: Bego cambió el emoji de `go` a ➡️ y el de `meet` a 🧑‍🤝‍🧑. Desde entonces `npm run validar` falla si dos verbos comparten emoji.
+
+Antes:
+
+- `go` y `walk` usaban los dos 🚶.
+- `help` y `meet` usaban los dos 🤝.
+
+En Mímica, si salían juntos en la misma pregunta, las dos opciones habrían sido correctas.
 
 ## freq_rank_top100 a null
 
