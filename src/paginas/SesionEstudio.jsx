@@ -9,9 +9,12 @@ import {
   contarDesbloqueadas,
   pistaDe,
 } from '../motor/estudio.js'
-import Cabecera from '../componentes/Cabecera.jsx'
-import Cartucho from '../componentes/Cartucho.jsx'
+import { PantallaMundo, BarraSuperior } from '../componentes/Pantalla.jsx'
+import { Chip, Medidor, EmojiCirculo } from '../componentes/Piezas.jsx'
+import BotonRedondo from '../componentes/BotonRedondo.jsx'
 import BotonAudio from '../componentes/BotonAudio.jsx'
+import Tesela from '../componentes/Tesela.jsx'
+import { letras } from '../componentes/ajusteTexto.js'
 
 // "was / were" se lee "was, were".
 const paraVoz = (texto) => texto.replace(/\s*\/\s*/g, ', ')
@@ -28,8 +31,10 @@ export default function SesionEstudio({ mundo }) {
 
   const [progreso, setProgreso] = useState(() => leerProgreso())
   const [pregunta, setPregunta] = useState(() => nuevaPregunta(delMundo, progreso, null, mundo, rng.current))
+  const [numero, setNumero] = useState(0)
   const [respuesta, setRespuesta] = useState(null)
   const [pista, setPista] = useState(null)
+  const [traduccion, setTraduccion] = useState(false)
   const [cartaNueva, setCartaNueva] = useState(null)
   const botonSiguiente = useRef(null)
 
@@ -51,8 +56,10 @@ export default function SesionEstudio({ mundo }) {
 
   const siguiente = useCallback(() => {
     setPregunta(nuevaPregunta(delMundo, progreso, pregunta.verbo, mundo, rng.current))
+    setNumero((n) => n + 1)
     setRespuesta(null)
     setPista(null)
+    setTraduccion(false)
     setCartaNueva(null)
   }, [delMundo, progreso, pregunta, mundo])
 
@@ -77,80 +84,109 @@ export default function SesionEstudio({ mundo }) {
   }, [respondida])
 
   const esMimica = pregunta.tipo === 'mimica'
-  const formas = `${verbo.verb} · ${verbo.past} · ${verbo.participle}`
-  const formasVoz = paraVoz(`${verbo.verb}. ${verbo.past}. ${verbo.participle}.`)
+  const conTraduccion = pregunta.tipo === 'pasado' || pregunta.tipo === 'participio'
+  const hechas = contarDesbloqueadas(progreso, delMundo)
+
+  const estadoDe = (o) => {
+    if (!respondida) return o === pista?.descartar ? 'descartada' : ''
+    if (o === pregunta.correcta) return acertada ? 'correcta' : 'solucion'
+    return o === respuesta ? 'fallada' : 'apagada'
+  }
 
   return (
-    <main className="pagina pagina--arriba">
-      <Cabecera
-        titulo={textos.mundo(mundo)}
+    <PantallaMundo mundo={mundo} olas className="sesion">
+      <BarraSuperior
         atras="/estudio"
-        extra={textos.estudio.cartasDelMundo(contarDesbloqueadas(progreso, delMundo), delMundo.length)}
+        izquierda={<Chip mundo={mundo} />}
+        derecha={
+          <div className="sesion__cartas">
+            <span>{textos.estudio.cartasDelMundo(hechas, delMundo.length)}</span>
+            <Medidor valor={hechas / delMundo.length} etiqueta={textos.nav.cartas} ancho={200} />
+          </div>
+        }
       />
 
-      <section className="pregunta" aria-labelledby="enunciado">
+      <section className="sesion__reto" aria-labelledby="enunciado">
+        <p className="sesion__etiqueta">{textos.etiquetas[pregunta.tipo]}</p>
         {esMimica ? (
           <>
-            <Cartucho verbo={verbo} tamaño="grande" />
-            <h2 id="enunciado" className="pregunta__enunciado">{textos.estudio.mimicaPregunta}</h2>
+            <EmojiCirculo verbo={verbo} tam={176} />
+            <h1 id="enunciado" className="visualmente-oculto">
+              {textos.estudio.mimicaPregunta}
+            </h1>
           </>
         ) : (
-          <h2 id="enunciado" className="pregunta__enunciado">{pregunta.enunciado}</h2>
+          <h1 id="enunciado" className="sesion__verbo" style={{ '--letras': letras(pregunta.verbo) }}>
+            {pregunta.verbo}
+          </h1>
         )}
+      </section>
 
-        {(pregunta.tipo === 'pasado' || pregunta.tipo === 'participio') && (
-          <p className="pregunta__traduccion">{textos.estudio.traduccion(verbo.verb, verbo.es)}</p>
+      <div className={`sesion__opciones sesion__opciones--${pregunta.opciones.length}`}>
+        {pregunta.opciones.map((o, i) => (
+          <Tesela
+            key={`${numero}-${o}`}
+            tecla={i + 1}
+            texto={o}
+            estado={estadoDe(o)}
+            entra
+            className="sesion__tesela"
+            onClick={() => responder(o)}
+            disabled={respondida || o === pista?.descartar}
+          />
+        ))}
+      </div>
+
+      <div className="sesion__ayudas">
+        {!respondida && (
+          <BotonRedondo
+            icono="pista"
+            etiqueta={textos.botones.pista}
+            conEtiqueta
+            onClick={() => setPista(pistaDe(pregunta, verbo))}
+            disabled={pista !== null}
+          />
         )}
+        {!respondida && conTraduccion && (
+          <BotonRedondo
+            icono="traducir"
+            etiqueta={textos.botones.traducir}
+            conEtiqueta
+            onClick={() => setTraduccion(true)}
+            disabled={traduccion}
+          />
+        )}
+        {/* En mímica el audio diría la respuesta: solo aparece después de responder. */}
+        {(!esMimica || respondida) && (
+          <BotonAudio texto={respondida ? paraVoz(`${verbo.verb}. ${verbo.past}. ${verbo.participle}.`) : verbo.verb} />
+        )}
+      </div>
 
-        <div className={`opciones opciones--${pregunta.opciones.length}`}>
-          {pregunta.opciones.map((o, i) => {
-            const estado = !respondida
-              ? o === pista?.descartar ? 'descartada' : ''
-              : o === pregunta.correcta ? 'correcta' : o === respuesta ? 'fallada' : 'apagada'
-            return (
-              <button
-                key={o}
-                type="button"
-                className={`boton opcion ${estado ? `opcion--${estado}` : ''}`}
-                onClick={() => responder(o)}
-                disabled={respondida || estado === 'descartada'}
-              >
-                <span className="opcion__tecla" aria-hidden="true">{i + 1}</span>
-                {o}
-              </button>
-            )
-          })}
-        </div>
-
-        <div className="ayudas">
-          {!respondida && !pista && (
-            <button type="button" className="boton boton--secundario" onClick={() => setPista(pistaDe(pregunta, verbo))}>
-              {textos.estudio.pista}
-            </button>
-          )}
-          {/* En mímica el audio diría la respuesta: solo aparece después de responder. */}
-          {(!esMimica || respondida) && <BotonAudio texto={respondida ? formasVoz : verbo.verb} />}
-        </div>
-
-        <div className="mensajes" aria-live="polite">
-          {pista && !respondida && <p className="pista">{pista.texto}</p>}
-          {respondida && (
-            <div className={`resultado ${acertada ? 'resultado--bien' : 'resultado--mal'}`}>
-              <p className="resultado__titulo">{acertada ? textos.estudio.bien : textos.estudio.mal(pregunta.correcta)}</p>
-              <p className="resultado__formas">{formas}</p>
-              <p className="resultado__traduccion">{verbo.es}</p>
-            </div>
-          )}
-          {cartaNueva && <p className="aviso-carta">{textos.estudio.cartaNueva(cartaNueva)}</p>}
-        </div>
-
+      <div className="sesion__mensajes" aria-live="polite">
+        {!respondida && (traduccion || pista) && (
+          <div className="tarjeta sesion__ayuda">
+            {traduccion && <p>{textos.estudio.traduccion(verbo.verb, verbo.es)}</p>}
+            {pista && <p>{pista.texto}</p>}
+          </div>
+        )}
         {respondida && (
-          <button ref={botonSiguiente} type="button" className="boton boton--principal" onClick={siguiente}>
+          <div className="tarjeta sesion__resultado">
+            <p className="sesion__resultado-titulo">
+              {acertada ? textos.estudio.bien : textos.estudio.mal(pregunta.correcta)}
+            </p>
+            <p className="sesion__resultado-formas">
+              {verbo.verb} · {verbo.past} · {verbo.participle}
+            </p>
+            <p>{verbo.es}</p>
+          </div>
+        )}
+        {cartaNueva && <p className="aviso-acento">{textos.estudio.cartaNueva(cartaNueva)}</p>}
+        {respondida && (
+          <button ref={botonSiguiente} type="button" className="pildora" onClick={siguiente}>
             {textos.estudio.siguiente}
           </button>
         )}
-        <p className="nota-teclas">{textos.estudio.teclas}</p>
-      </section>
-    </main>
+      </div>
+    </PantallaMundo>
   )
 }

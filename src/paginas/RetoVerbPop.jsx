@@ -5,18 +5,16 @@ import { semanaISO, mundoDeLaSemana } from '../motor/semana.js'
 import { secuenciaSemanal } from '../motor/secuencia.js'
 import { crearPartida, partidaReducer, alturaBloques, tiempoRestante, FASE } from '../motor/partida.js'
 import { useMenosMovimiento } from '../movimiento.js'
-import Cabecera from '../componentes/Cabecera.jsx'
-import Escena from '../componentes/verbpop/Escena.jsx'
-import { Hud, BarraCombo } from '../componentes/verbpop/Hud.jsx'
+import { PantallaMundo, BarraSuperior } from '../componentes/Pantalla.jsx'
+import { Chip } from '../componentes/Piezas.jsx'
+import PantallaVerbPop from '../componentes/verbpop/PantallaVerbPop.jsx'
 import { useReloj } from '../componentes/verbpop/useReloj.js'
 import { useTeclado } from '../componentes/verbpop/useTeclado.js'
 import { estadosDeBloques } from '../componentes/verbpop/estados.js'
 
 const JUEGO = 'verb_pop'
-// Con menos movimiento los bloques se quedan a esta altura y una barra marca la cuenta atrás.
-const ALTURA_QUIETA = 0.3
 
-function Partida({ preguntas, mundo, semana, alTerminar }) {
+function Partida({ preguntas, mundo, alTerminar }) {
   const [s, dispatch] = useReducer(partidaReducer, undefined, () =>
     crearPartida({ modo: 'competicion', preguntas, mundo }),
   )
@@ -24,6 +22,7 @@ function Partida({ preguntas, mundo, semana, alTerminar }) {
   const ahora = useReloj(dispatch, jugando)
   const menosMovimiento = useMenosMovimiento()
   const [columna, setColumna] = useState(1)
+  const [conTeclado, setConTeclado] = useState(false)
   const avisado = useRef(false)
 
   useEffect(() => {
@@ -41,84 +40,67 @@ function Partida({ preguntas, mundo, semana, alTerminar }) {
     },
     [ahora, opciones],
   )
+  const mover = useCallback((f) => {
+    setConTeclado(true)
+    setColumna(f)
+  }, [])
 
   const respondido = s.reto.respuesta !== null || s.reto.suelo
-  useTeclado({ opciones: opciones.length, columna, setColumna, alResponder: responder, respondido })
+  useTeclado({ opciones: opciones.length, columna, setColumna: mover, alResponder: responder, respondido })
 
+  const estados = estadosDeBloques(s)
   const altura = alturaBloques(s)
-  const atrapado = s.reto.respuesta !== null ? opciones.indexOf(s.reto.respuesta) : null
 
   return (
-    <div className="verbpop">
-      <Hud
-        puntos={s.puntos}
-        restante={tiempoRestante(s)}
-        total={s.cfg.duracionMs}
-        vidas={s.vidas}
-        vidasTotal={s.cfg.vidas}
-      />
-      <div className="panel-reto">
-        <p className="panel-reto__semana">{textos.verbPop.semana(semana, mundo)}</p>
-        <h1 className="panel-reto__enunciado">{s.reto.pregunta.enunciado}</h1>
-        {menosMovimiento && (
-          <span
-            className="barra barra--cuenta"
-            role="progressbar"
-            aria-label={textos.verbPop.cuentaAtras}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={Math.round((1 - altura) * 100)}
-          >
-            <span className="barra__relleno" style={{ width: `${(1 - altura) * 100}%` }} />
-          </span>
-        )}
-        <p className="panel-reto__puntos" aria-live="polite">
-          {s.reto.acierto ? `+${s.reto.puntos}` : ''}
-        </p>
-      </div>
-      <Escena
-        opciones={opciones}
-        estados={estadosDeBloques(s)}
-        altura={menosMovimiento && atrapado === null ? ALTURA_QUIETA : altura}
-        atrapado={atrapado}
-        columna={columna}
-        alElegir={responder}
-      />
-      <BarraCombo combo={s.combo} racha={s.racha} comboCada={s.cfg.comboCada} comboMax={s.cfg.comboMax} />
-    </div>
+    <PantallaVerbPop
+      mundo={mundo}
+      atras="/reto"
+      reloj={{ restanteMs: tiempoRestante(s), totalMs: s.cfg.duracionMs }}
+      vidas={{ quedan: s.vidas, total: s.cfg.vidas }}
+      puntos={s.puntos}
+      combo={s.combo}
+      cuentaAtras={menosMovimiento ? 1 - altura : null}
+      etiqueta={textos.etiquetas[s.reto.pregunta.tipo]}
+      verbo={s.reto.pregunta.verbo}
+      claveReto={s.reto.aparecio}
+      opciones={opciones.map((texto, i) => ({ texto, estado: estados[i] }))}
+      seleccionada={conTeclado && !respondido ? columna : null}
+      altura={menosMovimiento ? 0 : altura}
+      alElegir={responder}
+    />
   )
 }
 
-function Resultado({ resultado, alRepetir }) {
+function Resultado({ mundo, resultado, alRepetir }) {
   const v = textos.verbPop
   return (
-    <main className="pagina pagina--arriba">
-      <Cabecera titulo={resultado.fase === FASE.FIN_TIEMPO ? v.finTiempo : v.finVidas} atras="/reto" />
-      <dl className="resultado-final">
-        <div>
+    <PantallaMundo mundo={mundo} olas className="resultado-final">
+      <BarraSuperior atras="/reto" izquierda={<Chip mundo={mundo} />} />
+      <h1 className="titulo-grande">{resultado.fase === FASE.FIN_TIEMPO ? v.finTiempo : v.finVidas}</h1>
+      <dl className="resultado-final__datos">
+        <div className="tarjeta">
           <dt>{v.puntos}</dt>
-          <dd className="resultado-final__puntos">{resultado.puntos}</dd>
+          <dd>{textos.numero(resultado.puntos)}</dd>
         </div>
-        <div>
+        <div className="tarjeta">
           <dt>{v.aciertos}</dt>
           <dd>{resultado.aciertos}</dd>
         </div>
-        <div>
+        <div className="tarjeta">
           <dt>{v.mejorCombo}</dt>
-          <dd>
-            x{resultado.mejorCombo} · {v.seguidos(resultado.mejorRacha)}
-          </dd>
+          <dd>x{resultado.mejorCombo}</dd>
+          <dd className="resultado-final__extra">{v.seguidos(resultado.mejorRacha)}</dd>
         </div>
-        <div>
+        <div className="tarjeta">
           <dt>{v.record}</dt>
-          <dd>{resultado.record}</dd>
+          <dd>{textos.numero(resultado.record)}</dd>
         </div>
       </dl>
-      {resultado.nuevo && <p className="aviso-carta">{v.nuevoRecord}</p>}
-      <button type="button" className="boton boton--principal" onClick={alRepetir} autoFocus>
+      {resultado.nuevo && <p className="aviso-acento">{v.nuevoRecord}</p>}
+      <button type="button" className="pildora" onClick={alRepetir} autoFocus>
         {v.otraVez}
       </button>
-    </main>
+    </PantallaMundo>
   )
 }
 
@@ -149,25 +131,24 @@ export default function RetoVerbPop() {
     setFase('juego')
   }
 
-  if (fase === 'juego') {
-    return <Partida key={partida} preguntas={preguntas} mundo={mundo} semana={semana} alTerminar={alTerminar} />
-  }
-  if (fase === 'resultado') return <Resultado resultado={resultado} alRepetir={empezar} />
+  if (fase === 'juego') return <Partida key={partida} preguntas={preguntas} mundo={mundo} alTerminar={alTerminar} />
+  if (fase === 'resultado') return <Resultado mundo={mundo} resultado={resultado} alRepetir={empezar} />
 
   const record = leerRecord(JUEGO)
   return (
-    <main className="pagina pagina--arriba">
-      <Cabecera titulo={textos.verbPop.titulo} atras="/reto" />
-      <p className="subtitulo">{textos.verbPop.semana(semana, mundo)}</p>
-      <p className="subtitulo">{textos.verbPop.instrucciones}</p>
+    <PantallaMundo mundo={mundo} olas className="intro-juego">
+      <BarraSuperior atras="/reto" izquierda={<Chip mundo={mundo} />} />
+      <h1 className="titulo-grande">{textos.verbPop.titulo}</h1>
+      <p className="texto-mundo">{textos.verbPop.semana(semana, mundo)}</p>
+      <p className="texto-mundo">{textos.verbPop.instrucciones}</p>
       {record > 0 && (
-        <p className="subtitulo">
-          {textos.verbPop.record}: {record}
+        <p className="texto-mundo">
+          {textos.verbPop.record}: {textos.numero(record)}
         </p>
       )}
-      <button type="button" className="boton boton--principal" onClick={empezar} autoFocus>
+      <button type="button" className="pildora" onClick={empezar} autoFocus>
         {textos.verbPop.empezar}
       </button>
-    </main>
+    </PantallaMundo>
   )
 }

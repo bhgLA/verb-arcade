@@ -1,0 +1,20 @@
+/* Paleta de cada mundo. Se activa con data-mundo="N" en el contenedor.
+   --fondo: fondo · --forma: círculos grandes · --anillo: aros
+   --tinta: texto sobre blanco · --sombra: relieve de las teselas · --clave: pastilla de tecla */
+[data-mundo='1'] { --fondo: #c8452b; --forma: #d2532f; --anillo: #e0663f; --tinta: #3d1209; --sombra: #7a2210; --clave: #fbe3da; }
+[data-mundo='2'] { --fondo: #0a7a8a; --forma: #0c8797; --anillo: #12a0ae; --tinta: #05323b; --sombra: #064652; --clave: #ddf4f2; }
+[data-mundo='3'] { --fondo: #2e7d4f; --forma: #338a57; --anillo: #3fa168; --tinta: #0b2e1b; --sombra: #174d2f; --clave: #ddf3e5; }
+[data-mundo='4'] { --fondo: #7b3f98; --forma: #8749a5; --anillo: #9a5cb8; --tinta: #2a1236; --sombra: #46215a; --clave: #f0e0f7; }
+[data-mundo='5'] { --fondo: #1f5fbf; --forma: #2569cd; --anillo: #3a7ddb; --tinta: #0a234a; --sombra: #0f3a7a; --clave: #dce9fb; }
+[data-mundo='6'] { --fondo: #b0285a; --forma: #bc3166; --anillo: #cb4478; --tinta: #3d0a1d; --sombra: #6b1233; --clave: #fbdde8; }
+[data-mundo='7'] { --fondo: #3b4a9e; --forma: #4655ad; --anillo: #5a69bf; --tinta: #131a40; --sombra: #1f2a63; --clave: #e0e4fa; }
+[data-mundo='8'] { --fondo: #6b7a1f; --forma: #768628; --anillo: #8a9a38; --tinta: #1f2508; --sombra: #3a4310; --clave: #eef2d0; }
+[data-mundo='9'] { --fondo: #7a4a2b; --forma: #865433; --anillo: #9a6440; --tinta: #2a170b; --sombra: #432612; --clave: #f4e4d6; }
+[data-mundo='10'] { --fondo: #3e4c59; --forma: #475765; --anillo: #5a6b7a; --tinta: #121a22; --sombra: #1f2933; --clave: #e3e8ed; }
+
+/* Superficie con el color del mundo: el fondo cambia con transición. */
+.superficie-mundo {
+  background-color: var(--fondo);
+  color: var(--blanco);
+  transition: background-color var(--transicion-mundo) ease;
+}

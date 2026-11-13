@@ -1,5 +1,6 @@
-import { useRuta, Enlace } from './rutas.jsx'
+import { useRuta } from './rutas.jsx'
 import { textos } from './textos.js'
+import { PantallaNeutra, BarraSuperior } from './componentes/Pantalla.jsx'
 import Inicio from './paginas/Inicio.jsx'
 import Estudio from './paginas/Estudio.jsx'
 import SesionEstudio from './paginas/SesionEstudio.jsx'
@@ -19,10 +20,10 @@ const PAGINAS = {
 
 function NoEncontrada() {
   return (
-    <main className="pagina">
-      <h1>{textos.noEncontrada}</h1>
-      <Enlace a="/" className="boton">{textos.volver}</Enlace>
-    </main>
+    <PantallaNeutra>
+      <BarraSuperior neutro />
+      <h1 className="titulo-neutro">{textos.noEncontrada}</h1>
+    </PantallaNeutra>
   )
 }
 

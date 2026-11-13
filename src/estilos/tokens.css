@@ -1,0 +1,28 @@
+/* Tokens comunes. Los colores de cada mundo están en mundos.css. */
+:root {
+  --blanco: #ffffff;
+  --acento: #ffd166; /* tiempo, combo y vidas llenas */
+  --arena: #f7e7c2;
+  --arena-2: #efd6a0;
+
+  /* Blanco suavizado: SOLO para textos de 24 px o más (lo comprueba npm run contraste). */
+  --suave: rgb(255 255 255 / 0.8);
+
+  /* Pantallas neutras (estudio, cartas) */
+  --neutro: #f6f1e8;
+  --neutro-2: #ebe3d4;
+  --texto: #221d16;
+  --bloqueada: #e3ded5;
+  --bloqueada-texto: #6e665a;
+
+  --fuente-titulo: 'Bricolage Grotesque Variable', system-ui, sans-serif;
+  --fuente-texto: 'Atkinson Hyperlegible', system-ui, sans-serif;
+
+  --radio-tesela: 36px;
+  --relieve: 12px;
+  --objetivo-min: 56px;
+  --transicion-mundo: 400ms;
+
+  /* Mientras no haya data-mundo, la tinta es el texto neutro. */
+  --tinta: var(--texto);
+}

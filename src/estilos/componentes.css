@@ -1,0 +1,289 @@
+/* Componentes del sistema visual. Medidas de diseno/referencia-A-reef.html.
+   Regla de contraste: el texto de menos de 24 px sobre el fondo del mundo es
+   siempre var(--blanco); var(--suave) solo en textos de 24 px o más. */
+
+/* --- Fondo del mundo ------------------------------------------------------ */
+
+.fondo-mundo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.fondo-mundo__forma { fill: var(--forma); transition: fill var(--transicion-mundo) ease; }
+.fondo-mundo__anillo {
+  fill: none;
+  stroke: var(--anillo);
+  stroke-width: 3;
+  transition: stroke var(--transicion-mundo) ease;
+}
+
+.olas {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: clamp(96px, 19.5vh, 150px);
+  pointer-events: none;
+}
+.olas__1 { fill: var(--arena); }
+.olas__2 { fill: var(--arena-2); }
+
+/* --- Tesela (opción de respuesta) ------------------------------------------ */
+
+.tesela {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--objetivo-min);
+  min-height: var(--objetivo-min);
+  padding: 0 24px;
+  border: 0;
+  border-radius: var(--radio-tesela);
+  background: var(--blanco);
+  color: var(--tinta);
+  box-shadow: 0 var(--relieve) 0 var(--sombra);
+  font-family: var(--fuente-titulo);
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  container-type: inline-size;
+  transition: box-shadow 120ms ease, opacity 120ms ease;
+}
+.tesela:active:not(:disabled) { box-shadow: 0 6px 0 var(--sombra); translate: 0 6px; }
+.tesela:focus-visible,
+.tesela--seleccionada {
+  outline: 3px solid var(--tinta);
+  outline-offset: 4px;
+  box-shadow: 0 var(--relieve) 0 var(--sombra), 0 0 0 4px var(--blanco);
+}
+.tesela:disabled { cursor: default; }
+
+.tesela__tecla {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  width: 42px;
+  height: 42px;
+  border-radius: 21px;
+  background: var(--clave);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--fuente-texto);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--tinta);
+}
+
+/* Texto de la opción: 76 px, y menos si la palabra no cabe (--letras lo pone el componente). */
+.tesela__texto {
+  font-size: min(76px, calc(84cqi / var(--letras, 6) / 0.56));
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  text-align: center;
+  color: var(--tinta);
+}
+
+.tesela--apagada { opacity: 0.45; }
+.tesela--descartada { opacity: 0.35; }
+.tesela--descartada .tesela__texto { text-decoration: line-through; }
+.tesela--bloqueada { opacity: 0.8; }
+.tesela--solucion { opacity: 1; }
+/* El orden importa: la animación de respuesta tiene que ganar a la de entrada. */
+.tesela--entra { animation: tesela-entra 450ms cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+.tesela--correcta { animation: tesela-acierto 260ms ease-out forwards; }
+.tesela--fallada { animation: tesela-fallo 320ms ease-in-out; }
+
+@keyframes tesela-entra {
+  from { transform: translateY(-48px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes tesela-acierto {
+  to { transform: translateY(-18px) scale(1.06); }
+}
+@keyframes tesela-fallo {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(9px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(4px); }
+}
+
+/* --- Chip con el nombre del mundo ----------------------------------------- */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 48px;
+  padding: 0 22px;
+  border-radius: 24px;
+  background: var(--arena);
+  color: var(--tinta);
+  font-size: 20px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* --- Botón redondo ---------------------------------------------------------- */
+
+.boton-redondo {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--blanco);
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.boton-redondo__circulo {
+  width: 56px;
+  height: 56px;
+  border-radius: 28px;
+  background: rgb(255 255 255 / 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.boton-redondo__etiqueta { font-size: 16px; font-weight: 700; color: var(--blanco); }
+.boton-redondo:hover .boton-redondo__circulo { background: rgb(255 255 255 / 0.28); }
+.boton-redondo:disabled { opacity: 0.5; cursor: default; }
+.boton-redondo:focus-visible { outline: none; box-shadow: none; }
+.boton-redondo:focus-visible .boton-redondo__circulo {
+  outline: 3px solid var(--tinta);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 4px var(--blanco);
+}
+.boton-redondo--neutro { color: var(--texto); }
+.boton-redondo--neutro .boton-redondo__circulo { background: rgb(0 0 0 / 0.07); }
+.boton-redondo--neutro .boton-redondo__etiqueta { color: var(--texto); }
+.boton-redondo--neutro:hover .boton-redondo__circulo { background: rgb(0 0 0 / 0.12); }
+
+/* --- Medidor ------------------------------------------------------------------ */
+
+.medidor {
+  display: block;
+  height: 20px;
+  border-radius: 10px;
+  background: rgb(0 0 0 / 0.25);
+  overflow: hidden;
+}
+.medidor__relleno {
+  display: block;
+  height: 100%;
+  border-radius: 10px;
+  background: var(--acento);
+}
+
+/* --- Vidas ---------------------------------------------------------------------- */
+
+.vidas { display: flex; gap: 8px; }
+.vidas__corazon { width: 38px; height: 38px; display: block; }
+.vidas__corazon--lleno { fill: var(--acento); }
+.vidas__corazon--perdido { fill: none; stroke: rgb(255 255 255 / 0.6); stroke-width: 1.8; }
+
+/* --- Insignia de combo ------------------------------------------------------- */
+
+.insignia-combo {
+  width: 128px;
+  height: 128px;
+  border-radius: 64px;
+  background: var(--acento);
+  color: var(--tinta);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(10deg);
+}
+.insignia-combo__valor {
+  font-family: var(--fuente-titulo);
+  font-weight: 800;
+  font-size: 52px;
+  line-height: 1;
+  color: var(--tinta);
+}
+.insignia-combo__etiqueta { font-size: 16px; font-weight: 700; color: var(--tinta); }
+
+/* --- Emoji en círculo ----------------------------------------------------- */
+
+.emoji-circulo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tam, 88px);
+  height: var(--tam, 88px);
+  border-radius: 50%;
+  background: var(--clave);
+  flex: none;
+}
+.emoji-circulo__emoji { font-size: calc(var(--tam, 88px) * 0.55); line-height: 1; }
+.emoji-circulo__letra {
+  font-family: var(--fuente-titulo);
+  font-weight: 800;
+  font-size: calc(var(--tam, 88px) * 0.5);
+  line-height: 1;
+  color: var(--tinta);
+}
+
+/* --- Píldora (botón de acción) ------------------------------------------- */
+
+.pildora {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 0 32px;
+  border: 0;
+  border-radius: 32px;
+  background: var(--blanco);
+  color: var(--tinta);
+  box-shadow: 0 8px 0 var(--sombra, rgb(0 0 0 / 0.25));
+  font-family: var(--fuente-titulo);
+  font-weight: 800;
+  font-size: 26px;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.pildora:active { translate: 0 4px; box-shadow: 0 4px 0 var(--sombra, rgb(0 0 0 / 0.25)); }
+.pildora:focus-visible { box-shadow: 0 8px 0 var(--sombra, rgb(0 0 0 / 0.25)), 0 0 0 4px var(--blanco); }
+.pildora--acento { background: var(--acento); }
+.pildora--pequena { min-height: 56px; padding: 0 22px; font-size: 24px; }
+
+/* --- Tarjeta blanca y avisos ----------------------------------------------- */
+
+.tarjeta {
+  background: var(--blanco);
+  color: var(--tinta);
+  border-radius: 28px;
+  padding: 20px 24px;
+  box-shadow: 0 8px 0 var(--sombra, rgb(0 0 0 / 0.2));
+}
+.aviso-acento {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 24px;
+  background: var(--acento);
+  color: var(--tinta);
+  font-weight: 700;
+  font-size: 20px;
+}
+
+/* --- Movimiento: todo apagado con reduced-motion --------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
