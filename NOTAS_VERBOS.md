@@ -21,4 +21,29 @@ En Mímica, si salían juntos en la misma pregunta, las dos opciones habrían si
 
 ## freq_rank_top100 a null
 
-27 verbos tienen `freq_rank_top100: null`. Cuadra con `_source.selection`: son los añadidos a mano, fuera del top 100. El validador acepta `null` o un entero de 1 a 100.
+26 verbos tienen `freq_rank_top100: null`. Cuadra con `_source.selection`: son los añadidos a mano, fuera del top 100. El validador acepta `null` o un entero de 1 a 100. (Esta nota decía 27 por error: los conté sobre una versión anterior del fichero, la que no tenía `be` ni `let`.)
+
+## Grupos de verbos ambiguos en Mímica (pendiente de revisión)
+
+Los verbos de un mismo grupo nunca salen juntos en una pregunta de Mímica, porque se confunden al representarlos. Están en `src/motor/config.js` (`GRUPOS_AMBIGUOS`) y los propuso Bego; falta revisarlos con calma.
+
+- see, look, watch
+- hear, listen
+- talk, say, tell, speak, ask, call
+- go, come, leave, walk, run, follow
+- give, bring, send, put, take, hold
+- cry, laugh, smile
+- read, write, draw, paint
+- start, begin, stop
+- make, build, cook
+- sit, stand
+- buy, sell
+
+Mirando los emojis actuales, estas parejas también podrían confundirse. No las he añadido:
+
+- like 👍 y love ❤️
+- clean 🧹 y wash 🧼
+- look 👀 y find 🔍 (sería meter find en el grupo de see)
+- eat 🍽️ y cook 🍳 (cook ya está con make y build)
+- help 🤝 y meet 🧑‍🤝‍🧑
+- catch 🧤 con hold 🤲 y take 🤏
