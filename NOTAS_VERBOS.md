@@ -39,11 +39,13 @@ Los verbos de un mismo grupo nunca salen juntos en una pregunta de Mímica, porq
 - sit, stand
 - buy, sell
 
-Mirando los emojis actuales, estas parejas también podrían confundirse. No las he añadido:
+Añadidos el 13-11-2026 por parecido de emoji (Bego aprobó la propuesta):
 
-- like 👍 y love ❤️
-- clean 🧹 y wash 🧼
-- look 👀 y find 🔍 (sería meter find en el grupo de see)
-- eat 🍽️ y cook 🍳 (cook ya está con make y build)
-- help 🤝 y meet 🧑‍🤝‍🧑
-- catch 🧤 con hold 🤲 y take 🤏
+- like 👍, love ❤️
+- clean 🧹, wash 🧼
+- look 👀, find 🔍
+- eat 🍽️, cook 🍳
+- help 🤝, meet 🧑‍🤝‍🧑
+- catch 🧤, hold 🤲, take 🤏
+
+Un verbo puede estar en varios grupos: look (con see y watch, y con find), cook (con make y build, y con eat), hold y take (con give y compañía, y con catch). Los tests comprueban que, aun así, todas las pools de mímica dan 4 opciones sin ambigüedad, también la del mundo 1.
