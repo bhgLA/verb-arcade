@@ -74,15 +74,18 @@ for (let m = 1; m <= MUNDOS; m++) {
   if (n !== POR_MUNDO) errores.push(`Mundo ${m}: tiene ${n} verbos; deben ser ${POR_MUNDO}.`)
 }
 
-// Avisos que no bloquean: posibles erratas para revisar a mano.
-// En Mímica, dos verbos con el mismo emoji darían dos respuestas válidas.
+// Dos verbos con el mismo emoji darían dos respuestas válidas en Mímica.
 const porEmoji = new Map()
 for (const v of lista) {
-  if (v.mimica === true && v.emoji) porEmoji.set(v.emoji, [...(porEmoji.get(v.emoji) ?? []), v.verb])
+  if (typeof v.emoji === 'string' && v.emoji.trim() !== '') {
+    porEmoji.set(v.emoji, [...(porEmoji.get(v.emoji) ?? []), v.verb])
+  }
 }
 for (const [emoji, vs] of porEmoji) {
-  if (vs.length > 1) avisos.push(`emoji ${emoji} repetido en mímica: ${vs.join(', ')}.`)
+  if (vs.length > 1) errores.push(`emoji ${emoji} repetido: ${vs.join(', ')}.`)
 }
+
+// Avisos que no bloquean: posibles erratas para revisar a mano.
 for (const v of lista) {
   const formasRegulares = v.past === v.participle && /ed$/.test(v.past ?? '')
   if (v.irregular === true && formasRegulares) {
