@@ -80,7 +80,11 @@
 }
 .inicio__tesela { height: clamp(120px, 22vh, 200px); }
 .inicio__tesela-texto {
-  font-size: clamp(32px, 3.6vw, 52px);
+  /* Mismo tamaño en las cuatro: el que cabe para "Challenge" (9 letras, ~0.62em
+     cada una) en el hueco que deja el relleno de 24 px de la tesela. */
+  font-size: min(52px, 100cqi / 5.6);
+  white-space: nowrap;
+  text-align: center;
   letter-spacing: -0.03em;
   color: var(--tinta);
 }

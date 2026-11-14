@@ -12,7 +12,7 @@ export default function Reto() {
   const record = leerRecord('verb_pop')
   return (
     <PantallaMundo mundo={mundo} className="menu-reto">
-      <BarraSuperior izquierda={<Chip mundo={mundo} />} />
+      <BarraSuperior izquierda={<Chip>{textos.chipSemana(mundo)}</Chip>} />
       <h1 className="titulo-grande">{textos.nav.reto}</h1>
       <p className="texto-mundo">{textos.verbPop.semana(semana, mundo)}</p>
       <nav className="menu-reto__juegos" aria-label={textos.verbPop.elegirJuego}>

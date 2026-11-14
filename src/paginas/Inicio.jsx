@@ -1,9 +1,6 @@
-import { useMemo } from 'react'
 import { Enlace } from '../rutas.jsx'
 import { textos } from '../textos.js'
-import { semanaISO, mundoDeLaSemana } from '../motor/semana.js'
 import { PantallaMundo } from '../componentes/Pantalla.jsx'
-import { Chip } from '../componentes/Piezas.jsx'
 
 const DESTINOS = [
   ['/estudio', 'estudio'],
@@ -12,11 +9,13 @@ const DESTINOS = [
   ['/ranking', 'ranking'],
 ]
 
+// El inicio va siempre con el color de Reef (mundo 2). El mundo de la semana
+// se enseña en /reto.
+const MUNDO_INICIO = 2
+
 export default function Inicio() {
-  const mundo = useMemo(() => mundoDeLaSemana(semanaISO()), [])
   return (
-    <PantallaMundo mundo={mundo} className="inicio">
-      <Chip mundo={mundo} />
+    <PantallaMundo mundo={MUNDO_INICIO} className="inicio">
       <h1 className="inicio__titulo">{textos.titulo}</h1>
       <nav className="inicio__menu">
         {DESTINOS.map(([a, clave]) => (

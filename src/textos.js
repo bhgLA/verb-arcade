@@ -20,6 +20,7 @@ export const textos = {
   // Nombre de cada mundo (1-10) para los chips: "World 2: Reef".
   mundos: ['Sunrise', 'Reef', 'Grove', 'Plum', 'Lagoon', 'Berry', 'Dusk', 'Moss', 'Cocoa', 'Graphite'],
   chipMundo: (n) => `World ${n}: ${textos.mundos[n - 1]}`,
+  chipSemana: (n) => `This week: ${textos.chipMundo(n)}`,
 
   // Etiqueta pequeña encima del verbo del reto.
   etiquetas: {
