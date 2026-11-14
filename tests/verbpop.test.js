@@ -11,7 +11,7 @@ import {
   maximoTeorico,
   limiteServidor,
 } from '../src/motor/puntuacion.js'
-import { crearPartida, partidaReducer, retoActivo, alturaBloques, FASE } from '../src/motor/partida.js'
+import { crearPartida, partidaReducer, retoActivo, alturaBloques, preguntaActual, FASE } from '../src/motor/partida.js'
 import { secuenciaSemanal } from '../src/motor/secuencia.js'
 import { crearAleatorio } from '../src/motor/aleatorio.js'
 
@@ -260,5 +260,44 @@ describe('modo estudio', () => {
     assert.equal(s.reto.aparecio, 100_000)
     const otra = partidaReducer(s, { type: 'siguiente', t: 100_001, pregunta: p1 })
     assert.equal(otra.reto.pregunta, p2, 'no se salta un reto sin responder')
+  })
+
+  test('la ronda termina al responder la 10.ª pregunta y no genera más', () => {
+    const total = VERB_POP.preguntasEstudio
+    assert.equal(total, 10)
+    let s = estudio()
+    for (let i = 0; i < total; i++) {
+      assert.equal(s.fase, FASE.JUGANDO, `sigue jugando antes de la respuesta ${i + 1}`)
+      if (i > 0) s = partidaReducer(s, { type: 'siguiente', t: s.t + 500, pregunta: PREGUNTAS[i] })
+      assert.equal(preguntaActual(s), i + 1)
+      const t = s.reto.aparecio + BLOQUEO
+      s = responder(s, t, i % 3 === 0 ? incorrecta(s) : correcta(s)) // acierto y fallo cuentan igual
+      assert.notEqual(s.reto.respuesta, null)
+    }
+    assert.equal(s.fase, FASE.TERMINADA)
+    assert.equal(s.aciertos + s.fallos, total)
+    assert.equal(s.aciertos, 6)
+    assert.equal(preguntaActual(s), total)
+    assert.notEqual(s.reto.respuesta, null, 'la última respuesta sigue visible para el feedback')
+
+    const final = s
+    for (const accion of [
+      { type: 'siguiente', t: s.t + 1000, pregunta: PREGUNTAS[total] },
+      { type: 'responder', t: s.t + 5000, opcion: s.reto.pregunta.correcta },
+      { type: 'tick', t: s.t + 100_000 },
+    ]) {
+      s = partidaReducer(s, accion)
+      assert.equal(s, final, `"${accion.type}" no cambia una ronda terminada`)
+    }
+  })
+
+  test('el límite de preguntas no afecta a competición', () => {
+    let s = nueva()
+    for (let i = 0; i < VERB_POP.preguntasEstudio + 5; i++) {
+      s = responder(s, s.reto.aparecio + BLOQUEO, correcta(s))
+      s = tick(s, s.siguienteEn)
+    }
+    assert.equal(s.fase, FASE.JUGANDO)
+    assert.equal(s.aciertos, VERB_POP.preguntasEstudio + 5)
   })
 })

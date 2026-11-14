@@ -11,10 +11,11 @@
 //
 // Competición: 75 s, vidas, combo; un bloque que llega al suelo es un fallo.
 // Estudio: sin tiempo, sin vidas y sin suelo; el reto espera a 'siguiente'.
+// La ronda de estudio termina al responder la pregunta n.º cfg.preguntasEstudio.
 import { VERB_POP } from './config.js'
 import { multiplicador, puntosAcierto, tiempoDeCaida } from './puntuacion.js'
 
-export const FASE = Object.freeze({ JUGANDO: 'jugando', FIN_TIEMPO: 'fin_tiempo', FIN_VIDAS: 'fin_vidas' })
+export const FASE = Object.freeze({ JUGANDO: 'jugando', FIN_TIEMPO: 'fin_tiempo', FIN_VIDAS: 'fin_vidas', TERMINADA: 'terminada' })
 
 function nuevoReto(pregunta, t) {
   return { pregunta, aparecio: t, respuesta: null, acierto: null, tRespuesta: null, suelo: false, puntos: 0 }
@@ -50,6 +51,11 @@ export function retoActivo(s) {
 
 export function sePuedeResponder(s) {
   return s.fase === FASE.JUGANDO && retoActivo(s) && s.t - s.reto.aparecio >= s.cfg.bloqueoMs
+}
+
+// Número de la pregunta en pantalla (1..preguntasEstudio). Solo tiene sentido en estudio.
+export function preguntaActual(s) {
+  return Math.min(s.aciertos + s.fallos + (retoActivo(s) ? 1 : 0), s.cfg.preguntasEstudio)
 }
 
 export function tiempoRestante(s) {
@@ -108,6 +114,13 @@ function avanzar(s, tPedido) {
   return { ...e, t }
 }
 
+// Única condición de fin de la ronda de estudio. En competición no hace nada:
+// allí se acaba por tiempo (avanzar) o por vidas (fallo).
+function cerrarRonda(s) {
+  if (s.modo !== 'estudio' || s.aciertos + s.fallos < s.cfg.preguntasEstudio) return s
+  return { ...s, fase: FASE.TERMINADA, siguienteEn: null }
+}
+
 function responder(s0, t, opcion) {
   const s = avanzar(s0, t)
   if (!sePuedeResponder(s) || !s.reto.pregunta.opciones.includes(opcion)) return s
@@ -115,12 +128,12 @@ function responder(s0, t, opcion) {
   const acierto = opcion === s.reto.pregunta.correcta
   const cambios = { respuesta: opcion, acierto, tRespuesta: s.t }
 
-  if (!acierto) return fallo(s, s.t, cambios)
+  if (!acierto) return cerrarRonda(fallo(s, s.t, cambios))
 
   const puntos = s.modo === 'competicion' ? puntosAcierto(s.racha, transcurrido, s.caidaMs, s.cfg) : 0
   const racha = s.racha + 1
   const combo = multiplicador(racha, s.cfg)
-  return {
+  return cerrarRonda({
     ...s,
     puntos: s.puntos + puntos,
     racha,
@@ -130,11 +143,11 @@ function responder(s0, t, opcion) {
     aciertos: s.aciertos + 1,
     reto: { ...s.reto, ...cambios, puntos },
     siguienteEn: s.modo === 'competicion' ? s.t + s.cfg.pausaMs : null,
-  }
+  })
 }
 
 function siguiente(s, t, pregunta) {
-  if (s.modo !== 'estudio' || !pregunta || retoActivo(s)) return s
+  if (s.modo !== 'estudio' || s.fase !== FASE.JUGANDO || !pregunta || retoActivo(s)) return s
   const ahora = Math.max(t, s.t)
   return { ...s, t: ahora, reto: nuevoReto(pregunta, ahora) }
 }

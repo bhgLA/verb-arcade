@@ -45,6 +45,7 @@ export const VERB_POP = {
   caidaBaseMs: 6000, // tiempo hasta el suelo en el mundo 1
   aumentoVelocidadPorMundo: 0.06, // +6 % de velocidad por cada mundo por encima del 1
   margenServidor: 0.1, // margen sobre el máximo teórico para game_limits.max_score
+  preguntasEstudio: 10, // la ronda de estudio termina al responder esta pregunta
   lineaSeguraEstudio: 0.55, // en estudio los bloques se paran aquí (0 = arriba, 1 = suelo)
 }
 
