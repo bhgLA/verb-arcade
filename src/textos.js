@@ -22,6 +22,31 @@ export const textos = {
   chipMundo: (n) => `World ${n}: ${textos.mundos[n - 1]}`,
   chipSemana: (n) => `This week: ${textos.chipMundo(n)}`,
 
+  // Portada (diseno/referencia-home-reef.html).
+  inicio: {
+    lema: 'The 100 most useful English verbs, one world at a time.',
+    menu: 'Main menu',
+    sello: 'Week',
+    fichas: ['went', 'swam', 'ate'],
+    estudio: {
+      subtitulo: 'Learn at your own pace',
+      progreso: (mundo, x, total) => `World ${mundo}: ${x} of ${total} cards`,
+    },
+    reto: {
+      subtitulo: (semana, mundo) => (mundo === 1 ? `Week ${semana} · world 1` : `Week ${semana} · worlds 1 to ${mundo}`),
+      mejor: 'Your best',
+      sinPuntos: 'No score yet',
+      dias: (n) => (n === 1 ? '1 day left' : `${n} days left`),
+    },
+    cartas: {
+      subtitulo: 'Verbs you have unlocked',
+      de: (total) => `of ${total}`,
+    },
+    ranking: {
+      vacio: 'Be the first to score',
+    },
+  },
+
   // Etiqueta pequeña encima del verbo del reto.
   etiquetas: {
     pasado: 'Past of',
