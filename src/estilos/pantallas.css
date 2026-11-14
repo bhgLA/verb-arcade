@@ -470,6 +470,9 @@
 @media (max-width: 800px) {
   .resultado-final__datos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+/* Resumen de estudio: una sola ficha centrada y dos botones. */
+.resultado-final__datos--uno { grid-template-columns: minmax(0, 260px); justify-content: center; }
+.resultado-final__botones { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
 
 .ranking__pronto p { font-size: 22px; color: var(--tinta); }
 

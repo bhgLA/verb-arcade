@@ -3,7 +3,7 @@ import { textos } from '../textos.js'
 import { verbos, buscarVerbo, leerProgreso, guardarProgreso } from '../datos/index.js'
 import { crearAleatorio } from '../motor/aleatorio.js'
 import { TIPOS_VERB_POP_ESTUDIO } from '../motor/config.js'
-import { crearPartida, partidaReducer, alturaBloques } from '../motor/partida.js'
+import { crearPartida, partidaReducer, alturaBloques, preguntaActual, FASE } from '../motor/partida.js'
 import {
   elegirVerbo,
   crearPreguntaEstudio,
@@ -12,9 +12,11 @@ import {
   pistaDe,
 } from '../motor/estudio.js'
 import { useMenosMovimiento } from '../movimiento.js'
+import { Enlace } from '../rutas.jsx'
+import { PantallaMundo, BarraSuperior } from '../componentes/Pantalla.jsx'
 import BotonAudio from '../componentes/BotonAudio.jsx'
 import BotonRedondo from '../componentes/BotonRedondo.jsx'
-import { Medidor } from '../componentes/Piezas.jsx'
+import { Chip, Medidor } from '../componentes/Piezas.jsx'
 import PantallaVerbPop from '../componentes/verbpop/PantallaVerbPop.jsx'
 import { useReloj } from '../componentes/verbpop/useReloj.js'
 import { useTeclado } from '../componentes/verbpop/useTeclado.js'
@@ -23,7 +25,7 @@ import { estadosDeBloques } from '../componentes/verbpop/estados.js'
 // "was / were" se lee "was, were".
 const paraVoz = (texto) => texto.replace(/\s*\/\s*/g, ', ')
 
-export default function EstudioVerbPop({ mundo }) {
+function Ronda({ mundo, alTerminar }) {
   const rng = useRef(null)
   if (rng.current === null) rng.current = crearAleatorio((Math.random() * 2 ** 32) >>> 0)
   const delMundo = useRef(verbos.filter((v) => v.world === mundo)).current
@@ -44,7 +46,8 @@ export default function EstudioVerbPop({ mundo }) {
   const [s, dispatch] = useReducer(partidaReducer, undefined, () =>
     crearPartida({ modo: 'estudio', preguntas: [nueva(progreso, null)], mundo }),
   )
-  const ahora = useReloj(dispatch, true)
+  const terminada = s.fase === FASE.TERMINADA
+  const ahora = useReloj(dispatch, !terminada)
   const menosMovimiento = useMenosMovimiento()
   const [columna, setColumna] = useState(1)
   const [conTeclado, setConTeclado] = useState(false)
@@ -83,13 +86,18 @@ export default function EstudioVerbPop({ mundo }) {
     [ahora, pregunta, pista],
   )
 
+  // Tras la última respuesta el motor ya ha cerrado la ronda: el botón lleva al resumen.
   const siguiente = useCallback(() => {
     if (!respondido) return
+    if (terminada) {
+      alTerminar(s)
+      return
+    }
     dispatch({ type: 'siguiente', t: ahora(), pregunta: nueva(progreso, pregunta.verbo) })
     setPista(null)
     setTraduccion(false)
     setCartaNueva(null)
-  }, [respondido, ahora, nueva, progreso, pregunta])
+  }, [respondido, terminada, alTerminar, s, ahora, nueva, progreso, pregunta])
 
   const mover = useCallback((f) => {
     setConTeclado(true)
@@ -111,6 +119,7 @@ export default function EstudioVerbPop({ mundo }) {
 
   const centro = (
     <>
+      <span className="vp__cartas">{textos.estudio.pregunta(preguntaActual(s), s.cfg.preguntasEstudio)}</span>
       <span className="vp__cartas">{textos.estudio.cartasDelMundo(hechas, delMundo.length)}</span>
       <Medidor valor={hechas / delMundo.length} etiqueta={textos.nav.cartas} ancho={240} />
     </>
@@ -153,7 +162,7 @@ export default function EstudioVerbPop({ mundo }) {
         <p className="vp__resultado-es">{verbo.es}</p>
         {cartaNueva && <p className="aviso-acento">{textos.estudio.cartaNueva(cartaNueva)}</p>}
         <button ref={botonSiguiente} type="button" className="pildora pildora--pequena" onClick={siguiente}>
-          {textos.estudio.siguiente}
+          {terminada ? textos.estudio.verResultado : textos.estudio.siguiente}
         </button>
       </div>
     )
@@ -182,4 +191,44 @@ export default function EstudioVerbPop({ mundo }) {
       panel={panel}
     />
   )
+}
+
+function Resumen({ mundo, resultado, alRepetir }) {
+  return (
+    <PantallaMundo mundo={mundo} olas className="resultado-final">
+      <BarraSuperior atras="/estudio" izquierda={<Chip mundo={mundo} />} />
+      <h1 className="titulo-grande">{textos.estudio.finRonda}</h1>
+      <dl className="resultado-final__datos resultado-final__datos--uno">
+        <div className="tarjeta">
+          <dt>{textos.verbPop.aciertos}</dt>
+          <dd>{textos.estudio.aciertosRonda(resultado.aciertos, resultado.total)}</dd>
+        </div>
+      </dl>
+      <div className="resultado-final__botones">
+        <button type="button" className="pildora" onClick={alRepetir} autoFocus>
+          {textos.verbPop.otraVez}
+        </button>
+        <Enlace a="/estudio" className="pildora">
+          {textos.estudio.volverAEstudio}
+        </Enlace>
+      </div>
+    </PantallaMundo>
+  )
+}
+
+export default function EstudioVerbPop({ mundo }) {
+  const [ronda, setRonda] = useState(0)
+  const [resultado, setResultado] = useState(null)
+
+  const alTerminar = useCallback((s) => {
+    setResultado({ aciertos: s.aciertos, total: s.cfg.preguntasEstudio })
+  }, [])
+
+  const repetir = useCallback(() => {
+    setResultado(null)
+    setRonda((n) => n + 1)
+  }, [])
+
+  if (resultado) return <Resumen mundo={mundo} resultado={resultado} alRepetir={repetir} />
+  return <Ronda key={ronda} mundo={mundo} alTerminar={alTerminar} />
 }
