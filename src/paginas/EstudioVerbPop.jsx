@@ -195,28 +195,51 @@ function Ronda({ mundo, alTerminar }) {
   )
 }
 
+// Resumen de la ronda. El botón principal es "Play again", salvo cuando esta
+// ronda ha completado el mundo: entonces lo es "See cards".
 function Resumen({ mundo, resultado, alRepetir }) {
+  const principal = useRef(null)
+  useEffect(() => principal.current?.focus(), [])
+
+  const completo = resultado.mundoCompleto === true
+  const clase = (esPrincipal) => (esPrincipal ? 'pildora resumen__principal' : 'pildora pildora--pequena')
+  const otraVez = (
+    <button key="otra" ref={completo ? null : principal} type="button" className={clase(!completo)} onClick={alRepetir}>
+      {textos.verbPop.otraVez}
+    </button>
+  )
+  const cartas = (
+    <Enlace key="cartas" ref={completo ? principal : null} a="/cartas" className={clase(completo)}>
+      {textos.estudio.verCartas}
+    </Enlace>
+  )
+  const volver = (
+    <Enlace key="volver" a="/estudio" className={clase(false)}>
+      {textos.estudio.volverAEstudio}
+    </Enlace>
+  )
+  const [primero, ...secundarios] = completo ? [cartas, otraVez, volver] : [otraVez, cartas, volver]
+
   return (
-    <PantallaMundo mundo={mundo} olas className="resultado-final">
+    <PantallaMundo mundo={mundo} olas className="resultado-final resumen">
       <BarraSuperior atras="/estudio" izquierda={<Chip mundo={mundo} />} />
-      <h1 className="titulo-grande">{textos.estudio.finRonda}</h1>
+      {completo ? (
+        <>
+          <h1 className="resumen__mundo-completo">{textos.estudio.mundoCompleto(mundo)}</h1>
+          <p className="resumen__subtitulo">{textos.estudio.finRonda}</p>
+        </>
+      ) : (
+        <h1 className="titulo-grande">{textos.estudio.finRonda}</h1>
+      )}
       <dl className="resultado-final__datos resultado-final__datos--uno">
         <div className="tarjeta">
           <dt>{textos.verbPop.aciertos}</dt>
           <dd>{textos.estudio.aciertosRonda(resultado.aciertos, resultado.total)}</dd>
         </div>
       </dl>
-      {resultado.mundoCompleto && <p className="aviso-acento">{textos.estudio.mundoCompleto(mundo)}</p>}
-      <div className="resultado-final__botones">
-        <button type="button" className="pildora" onClick={alRepetir} autoFocus>
-          {textos.verbPop.otraVez}
-        </button>
-        <Enlace a="/cartas" className="pildora">
-          {textos.estudio.verCartas}
-        </Enlace>
-        <Enlace a="/estudio" className="pildora">
-          {textos.estudio.volverAEstudio}
-        </Enlace>
+      <div className="resumen__botones">
+        {primero}
+        <div className="resumen__secundarios">{secundarios}</div>
       </div>
     </PantallaMundo>
   )
