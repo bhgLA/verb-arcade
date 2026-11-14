@@ -2,7 +2,7 @@ import { test, describe } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 
-import { semanaISO, mundoDeLaSemana, poolDeLaSemana } from '../src/motor/semana.js'
+import { semanaISO, mundoDeLaSemana, poolDeLaSemana, diasHastaElLunes } from '../src/motor/semana.js'
 import { crearAleatorio, barajar, elegir } from '../src/motor/aleatorio.js'
 import { crearPregunta, regularizar, mismoGrupoAmbiguo, normalizar } from '../src/motor/preguntas.js'
 import { secuenciaSemanal } from '../src/motor/secuencia.js'
@@ -66,6 +66,28 @@ describe('semanaISO', () => {
 
   test('rechaza fechas no válidas', () => {
     assert.throws(() => semanaISO(new Date('no es fecha')))
+  })
+})
+
+describe('diasHastaElLunes', () => {
+  test('cuenta los días que quedan hasta el lunes siguiente', () => {
+    assert.equal(diasHastaElLunes(new Date('2026-11-16T12:00:00+01:00')), 7) // lunes
+    assert.equal(diasHastaElLunes(new Date('2026-11-19T12:00:00+01:00')), 4) // jueves
+    assert.equal(diasHastaElLunes(new Date('2026-11-21T12:00:00+01:00')), 2) // sábado
+    assert.equal(diasHastaElLunes(new Date('2026-11-22T12:00:00+01:00')), 1) // domingo
+  })
+
+  test('cambia a medianoche de Madrid, no a medianoche UTC', () => {
+    // Domingo 23:59:59 en Madrid (invierno, UTC+1) y lunes 00:00.
+    assert.equal(diasHastaElLunes(new Date('2026-11-22T22:59:59Z')), 1)
+    assert.equal(diasHastaElLunes(new Date('2026-11-22T23:00:00Z')), 7)
+    // En verano Madrid va a UTC+2.
+    assert.equal(diasHastaElLunes(new Date('2026-06-28T21:59:59Z')), 1)
+    assert.equal(diasHastaElLunes(new Date('2026-06-28T22:00:00Z')), 7)
+  })
+
+  test('rechaza fechas no válidas', () => {
+    assert.throws(() => diasHastaElLunes(new Date('no es fecha')))
   })
 })
 

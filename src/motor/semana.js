@@ -20,18 +20,34 @@ function fechaEnMadrid(fecha) {
   return { año: partes.year, mes: partes.month, dia: partes.day }
 }
 
-export function semanaISO(fecha = new Date()) {
+function comprobarFecha(fecha, quien) {
   if (!(fecha instanceof Date) || Number.isNaN(fecha.getTime())) {
-    throw new Error('semanaISO: hace falta una fecha válida.')
+    throw new Error(`${quien}: hace falta una fecha válida.`)
   }
+}
+
+// Día de Madrid como instante UTC a medianoche y día de la semana (lunes = 0).
+function diaEnMadrid(fecha) {
   const { año, mes, dia } = fechaEnMadrid(fecha)
   const t = Date.UTC(año, mes - 1, dia)
-  const diaSemana = (new Date(t).getUTCDay() + 6) % 7 // lunes = 0
+  return { t, diaSemana: (new Date(t).getUTCDay() + 6) % 7 }
+}
+
+export function semanaISO(fecha = new Date()) {
+  comprobarFecha(fecha, 'semanaISO')
+  const { t, diaSemana } = diaEnMadrid(fecha)
   // La semana ISO es la del jueves de esa misma semana.
   const jueves = t + (3 - diaSemana) * DIA_MS
   const añoISO = new Date(jueves).getUTCFullYear()
   const numero = 1 + Math.floor((jueves - Date.UTC(añoISO, 0, 1)) / DIA_MS / 7)
   return `${añoISO}-W${String(numero).padStart(2, '0')}`
+}
+
+// Días que faltan para el próximo lunes en Madrid, cuando empieza otra semana:
+// el lunes da 7 y el domingo 1.
+export function diasHastaElLunes(fecha = new Date()) {
+  comprobarFecha(fecha, 'diasHastaElLunes')
+  return 7 - diaEnMadrid(fecha).diaSemana
 }
 
 export function numeroDeSemana(semana) {
