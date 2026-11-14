@@ -5,6 +5,12 @@
   --arena: #f7e7c2;
   --arena-2: #efd6a0;
 
+  /* Portada: fichas del menú */
+  --tinte-claro: #ddf4f2; /* fondo de iconos, barras y puestos 2-3 */
+  --sombra-acento: #a87400; /* relieve de la ficha amarilla */
+  --secundario: #2d5a63; /* texto secundario sobre blanco */
+  --secundario-acento: #4a3300; /* texto secundario sobre --acento */
+
   /* Blanco suavizado: SOLO para textos de 24 px o más (lo comprueba npm run contraste). */
   --suave: rgb(255 255 255 / 0.8);
 

@@ -59,38 +59,158 @@
 .texto-neutro { align-self: flex-start; font-size: 20px; color: var(--texto); }
 .texto-neutro--fuerte { font-weight: 700; }
 
-/* --- Inicio ------------------------------------------------------------------ */
+/* --- Inicio: lienzo de 1366×768, medidas de diseno/referencia-home-reef.html --- */
 
-.inicio .pantalla__contenido { min-height: 100vh; min-height: 100dvh; justify-content: center; gap: 32px; }
+.escenario__lienzo .olas.inicio__olas { height: 190px; }
+.inicio { position: absolute; inset: 0; }
+
+.inicio__cabecera { position: absolute; left: 64px; top: 64px; width: 820px; }
 .inicio__titulo {
   font-family: var(--fuente-titulo);
   font-weight: 800;
-  font-size: clamp(72px, 11vw, 168px);
-  line-height: 0.92;
+  font-size: 128px;
+  line-height: 0.95;
   letter-spacing: -0.045em;
-  text-align: center;
   color: var(--blanco);
 }
-.inicio__menu {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 36px;
-  width: min(100%, 1180px);
-  margin-top: 16px;
+.inicio__lema { margin-top: 20px; max-width: 560px; font-size: 26px; line-height: 1.4; color: var(--blanco); }
+
+.inicio__sello {
+  position: absolute;
+  left: 828px;
+  top: 54px;
+  width: 112px;
+  height: 112px;
+  border-radius: 56px;
+  background: var(--acento);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(10deg);
 }
-.inicio__tesela { height: clamp(120px, 22vh, 200px); }
-.inicio__tesela-texto {
-  /* Mismo tamaño en las cuatro: el que cabe para "Challenge" (9 letras, ~0.62em
-     cada una) en el hueco que deja el relleno de 24 px de la tesela. */
-  font-size: min(52px, 100cqi / 5.6);
-  white-space: nowrap;
-  text-align: center;
+.inicio__sello-texto { font-size: 15px; font-weight: 700; line-height: 1; color: var(--tinta); }
+.inicio__sello-numero { font-family: var(--fuente-titulo); font-weight: 800; font-size: 46px; line-height: 1; color: var(--tinta); }
+
+/* Fichas decorativas went / swam / ate */
+.inicio__verbo {
+  position: absolute;
+  width: 200px;
+  height: 112px;
+  border-radius: 30px;
+  background: var(--blanco);
+  box-shadow: 0 10px 0 var(--sombra);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--fuente-titulo);
+  font-weight: 800;
+  font-size: 56px;
   letter-spacing: -0.03em;
   color: var(--tinta);
 }
-@media (max-width: 900px) {
-  .inicio__menu { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+.inicio__verbo--1 { left: 960px; top: 56px; transform: rotate(-6deg); }
+.inicio__verbo--2 { left: 1124px; top: 138px; transform: rotate(5deg); }
+.inicio__verbo--3 { left: 940px; top: 196px; transform: rotate(-3deg); }
+
+/* Menú: cuatro fichas de 292×280. Usan .tesela para el relieve, el foco y :active. */
+.inicio__menu { position: absolute; left: 63px; top: 350px; width: 1240px; display: flex; gap: 24px; }
+.ficha-inicio {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  width: 292px;
+  height: 280px;
+  padding: 24px;
+  text-align: left;
+  font-family: var(--fuente-texto);
+  font-weight: 400;
 }
+.ficha-inicio--destacada { --sombra: var(--sombra-acento); background: var(--acento); }
+
+.ficha-inicio__icono {
+  width: 52px;
+  height: 52px;
+  border-radius: 26px;
+  background: var(--tinte-claro);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tinta);
+}
+.ficha-inicio--destacada .ficha-inicio__icono { background: rgb(255 255 255 / 0.65); }
+
+.ficha-inicio__titulo {
+  margin-top: 12px;
+  font-family: var(--fuente-titulo);
+  font-weight: 800;
+  font-size: 40px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--tinta);
+}
+.ficha-inicio__subtitulo { margin-top: 4px; font-size: 18px; color: var(--secundario); }
+.ficha-inicio--destacada .ficha-inicio__subtitulo { font-size: 18px; color: var(--secundario-acento); }
+
+.ficha-inicio__pie { margin-top: auto; display: block; width: 100%; }
+.ficha-inicio__dato { display: block; font-size: 16px; font-weight: 700; color: var(--tinta); }
+.ficha-inicio__numero {
+  display: block;
+  font-family: var(--fuente-titulo);
+  font-weight: 800;
+  font-size: 38px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--tinta);
+}
+/* "No score yet" ocupa el hueco del número; si no cabe junto a la píldora, baja de línea. */
+.ficha-inicio__numero--vacio { font-size: 24px; line-height: 1.1; letter-spacing: -0.01em; }
+.ficha-inicio__de { font-family: var(--fuente-texto); font-size: 20px; font-weight: 700; letter-spacing: 0; }
+
+.ficha-inicio__barra {
+  display: block;
+  margin-top: 8px;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--tinte-claro);
+  overflow: hidden;
+}
+.ficha-inicio__barra--cartas { margin-top: 10px; }
+.ficha-inicio__barra-relleno { display: block; height: 100%; border-radius: 5px; background: var(--fondo); }
+
+.ficha-inicio__reto { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
+.ficha-inicio__mejor { min-width: 0; }
+.ficha-inicio__pildora {
+  flex-shrink: 0;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 17px;
+  background: var(--tinta);
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--acento);
+}
+
+.ficha-inicio__fila { display: flex; align-items: center; gap: 10px; height: 30px; font-size: 16px; color: var(--tinta); }
+.ficha-inicio__puesto {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--tinte-claro);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--tinta);
+}
+.ficha-inicio__puesto--primero { background: var(--acento); }
+.ficha-inicio__nick { flex: 1; min-width: 0; font-weight: 700; overflow-wrap: anywhere; }
+.ficha-inicio__vacio { display: block; font-size: 18px; font-weight: 700; line-height: 1.3; color: var(--tinta); }
 
 /* --- /estudio: rejilla de mundos ------------------------------------------- */
 

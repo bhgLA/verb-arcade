@@ -7,7 +7,10 @@
 //      o el texto neutro (regla: el texto pequeño sobre el fondo del mundo es
 //      siempre blanco puro; los tonos suaves solo en textos grandes);
 //   4. otras parejas que usa la interfaz no llegan a su mínimo (chip, tecla,
-//      combo, pantallas neutras, carta bloqueada, blanco suave en textos grandes).
+//      combo, pantallas neutras, carta bloqueada, blanco suave en textos grandes,
+//      fichas de la portada).
+// Los colores secundarios de la portada y el amarillo de la píldora valen en
+// texto pequeño porque sus parejas se comprueban aquí abajo.
 // Avisa (sin fallar) si el blanco sobre los círculos (--forma) baja de 4,5.
 import { readFileSync, readdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -74,6 +77,8 @@ function exigir(nombre, texto, fondo, minimo) {
 const { blanco, suave, acento, arena, neutro, texto, bloqueada } = tokens
 exigir('texto neutro sobre fondo neutro', texto, neutro, 4.5)
 exigir('"?" de carta bloqueada (texto grande)', tokens['bloqueada-texto'], bloqueada, 3)
+exigir('portada: --secundario sobre blanco', tokens.secundario, blanco, 4.5)
+exigir('portada: --secundario-acento sobre --acento', tokens['secundario-acento'], acento, 4.5)
 
 for (const [n, m] of Object.entries(mundos)) {
   const nombre = `Mundo ${n} (${NOMBRES[n - 1]})`
@@ -84,6 +89,8 @@ for (const [n, m] of Object.entries(mundos)) {
     'tinta/arena': exigir(`${nombre}: chip (--tinta sobre arena)`, m.tinta, arena, 4.5),
     'tinta/clave': exigir(`${nombre}: tecla (--tinta sobre --clave)`, m.tinta, m.clave, 4.5),
     'tinta/acento': exigir(`${nombre}: combo (--tinta sobre acento)`, m.tinta, acento, 4.5),
+    'tinta/tinte': exigir(`${nombre}: portada (--tinta sobre --tinte-claro)`, m.tinta, tokens['tinte-claro'], 4.5),
+    'acento/tinta': exigir(`${nombre}: píldora de días (acento sobre --tinta)`, acento, m.tinta, 4.5),
     'suave/fondo': exigir(`${nombre}: blanco suave sobre --fondo (texto grande)`, suave, m.fondo, 3),
     'blanco/forma': contraste(blanco, m.forma),
   }
@@ -96,7 +103,17 @@ for (const [n, m] of Object.entries(mundos)) {
 
 // --- Texto pequeño: solo blanco puro, tinta o texto neutro -------------------
 
-const SEGUROS = new Set(['var(--blanco)', 'var(--tinta)', 'var(--texto)', 'inherit', 'currentcolor', 'transparent'])
+const SEGUROS = new Set([
+  'var(--blanco)',
+  'var(--tinta)',
+  'var(--texto)',
+  'var(--secundario)',
+  'var(--secundario-acento)',
+  'var(--acento)',
+  'inherit',
+  'currentcolor',
+  'transparent',
+])
 
 function tamañoPx(valor) {
   if (!valor) return null

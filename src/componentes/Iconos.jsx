@@ -37,9 +37,24 @@ const TRAZOS = {
       <path d="M18 6L6 18" />
     </>
   ),
+  // Fichas de la portada
+  libro: (
+    <>
+      <path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v15H5.5C4.7 19 4 18.3 4 17.5v-12z" />
+      <path d="M20 5.5C20 4.7 19.3 4 18.5 4H13v15h5.5c.8 0 1.5-.7 1.5-1.5v-12z" />
+    </>
+  ),
+  rayo: <path d="M13 3L5 13h6l-1 8 8-10h-6l1-8z" />,
+  cartas: (
+    <>
+      <rect x="3" y="7" width="12" height="14" rx="2" />
+      <path d="M8 4h11a2 2 0 0 1 2 2v11" />
+    </>
+  ),
+  podio: <path d="M3 21V12h5v9M9 21V6h6v15M16 21v-9h5v9" />,
 }
 
-export default function Icono({ nombre, tam = 26 }) {
+export default function Icono({ nombre, tam = 26, grosor = 2.6 }) {
   return (
     <svg
       aria-hidden="true"
@@ -48,7 +63,7 @@ export default function Icono({ nombre, tam = 26 }) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2.6"
+      strokeWidth={grosor}
       strokeLinecap="round"
       strokeLinejoin="round"
     >
