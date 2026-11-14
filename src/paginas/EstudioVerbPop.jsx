@@ -54,6 +54,7 @@ function Ronda({ mundo, alTerminar }) {
   const [pista, setPista] = useState(null)
   const [traduccion, setTraduccion] = useState(false)
   const [cartaNueva, setCartaNueva] = useState(null)
+  const [mundoCompleto, setMundoCompleto] = useState(false)
   const registrado = useRef(null)
   const botonSiguiente = useRef(null)
 
@@ -66,11 +67,12 @@ function Ronda({ mundo, alTerminar }) {
   useEffect(() => {
     if (!respondido || registrado.current === reto) return
     registrado.current = reto
-    const r = registrarRespuesta(progreso, pregunta.verbo, reto.acierto)
+    const r = registrarRespuesta(progreso, pregunta.verbo, reto.acierto, delMundo)
     guardarProgreso(r.progreso)
     setProgreso(r.progreso)
     if (r.desbloqueadaAhora) setCartaNueva(pregunta.verbo)
-  }, [respondido, reto, progreso, pregunta])
+    if (r.mundoCompletadoAhora) setMundoCompleto(true)
+  }, [respondido, reto, progreso, pregunta, delMundo])
 
   useEffect(() => {
     if (respondido) botonSiguiente.current?.focus()
@@ -90,14 +92,14 @@ function Ronda({ mundo, alTerminar }) {
   const siguiente = useCallback(() => {
     if (!respondido) return
     if (terminada) {
-      alTerminar(s)
+      alTerminar(s, mundoCompleto)
       return
     }
     dispatch({ type: 'siguiente', t: ahora(), pregunta: nueva(progreso, pregunta.verbo) })
     setPista(null)
     setTraduccion(false)
     setCartaNueva(null)
-  }, [respondido, terminada, alTerminar, s, ahora, nueva, progreso, pregunta])
+  }, [respondido, terminada, alTerminar, s, mundoCompleto, ahora, nueva, progreso, pregunta])
 
   const mover = useCallback((f) => {
     setConTeclado(true)
@@ -204,10 +206,14 @@ function Resumen({ mundo, resultado, alRepetir }) {
           <dd>{textos.estudio.aciertosRonda(resultado.aciertos, resultado.total)}</dd>
         </div>
       </dl>
+      {resultado.mundoCompleto && <p className="aviso-acento">{textos.estudio.mundoCompleto(mundo)}</p>}
       <div className="resultado-final__botones">
         <button type="button" className="pildora" onClick={alRepetir} autoFocus>
           {textos.verbPop.otraVez}
         </button>
+        <Enlace a="/cartas" className="pildora">
+          {textos.estudio.verCartas}
+        </Enlace>
         <Enlace a="/estudio" className="pildora">
           {textos.estudio.volverAEstudio}
         </Enlace>
@@ -220,8 +226,8 @@ export default function EstudioVerbPop({ mundo }) {
   const [ronda, setRonda] = useState(0)
   const [resultado, setResultado] = useState(null)
 
-  const alTerminar = useCallback((s) => {
-    setResultado({ aciertos: s.aciertos, total: s.cfg.preguntasEstudio })
+  const alTerminar = useCallback((s, mundoCompleto) => {
+    setResultado({ aciertos: s.aciertos, total: s.cfg.preguntasEstudio, mundoCompleto })
   }, [])
 
   const repetir = useCallback(() => {
