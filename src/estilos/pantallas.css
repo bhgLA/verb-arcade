@@ -253,67 +253,47 @@
 
 /* --- /estudio: rejilla de mundos ------------------------------------------- */
 
-/* Los 10 mundos caben sin scroll desde 1366×650 y el bloque se centra en alto:
-   24 + 64 (cabecera) + 36 + 2 × 220 (filas) + 32 + 36 (24 + relieve) = 632 px. */
-.lista-mundos .pantalla__contenido {
-  max-width: 1480px;
-  min-height: 100vh;
-  min-height: 100dvh;
-  justify-content: center;
-  padding: 24px clamp(24px, 4vw, 56px) calc(24px + var(--relieve));
-  gap: 36px;
-}
-.lista-mundos__cabecera { width: 100%; min-height: 64px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
-.lista-mundos__titulo {
-  font-family: var(--fuente-titulo);
-  font-weight: 800;
-  font-size: 60px;
-  line-height: 1;
-  letter-spacing: -0.03em;
-  color: var(--texto);
-}
-.lista-mundos__subtitulo { font-size: 20px; color: var(--texto); }
-
+/* Cabecera y márgenes: los de las pantallas neutras (BarraSuperior, .titulo-neutro).
+   Rejilla de 5×2 con fichas altas; lo que sobre de alto queda debajo. */
 .lista-mundos__rejilla {
+  --alto-ficha: clamp(290px, calc((100dvh - 200px) / 2), 335px);
   list-style: none;
   margin: 0;
   padding: 0;
   width: 100%;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  /* Mínimo: lo que pida el contenido (con menos alto, scroll). Máximo: 220 px,
-     para no dejar hueco muerto entre la barra y los botones. */
-  grid-auto-rows: minmax(min-content, clamp(200px, calc((100dvh - 210px) / 2), 220px));
-  gap: 32px 22px; /* fila: relieve de 12 px + 20 de aire */
+  /* Si un nombre se parte en dos líneas (fichas estrechas), la fila crece en vez de cortar. */
+  grid-auto-rows: minmax(var(--alto-ficha), auto);
+  gap: 24px 20px; /* fila: 12 px de relieve + 12 de aire */
 }
-/* Por debajo de ~1260 px no caben los dos botones en una ficha de quinta parte. */
-@media (max-width: 1259px) {
-  .lista-mundos__rejilla { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+@media (max-width: 1099px) {
+  .lista-mundos__rejilla { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 }
+/* Composición de la ficha de 4 columnas, con los botones apilados. Relleno lateral
+   de 16 px para que "World 10: Graphite" (193 px a 22 px) quepa en una línea. */
 .tarjeta-mundo {
   display: flex;
   flex-direction: column;
-  gap: 6px;
   min-width: 0;
-  padding: 16px 16px 20px;
+  padding: 20px 16px;
   border-radius: var(--radio-tesela);
   box-shadow: 0 var(--relieve) 0 var(--sombra);
 }
-.tarjeta-mundo__cabeza { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+/* El número absorbe la diferencia de alto: el resto de la ficha ocupa 240 px. */
 .tarjeta-mundo__numero {
-  flex-shrink: 0;
   font-family: var(--fuente-titulo);
   font-weight: 800;
-  font-size: 56px;
+  font-size: clamp(52px, calc((var(--alto-ficha) - 240px) / 0.9), 96px);
   line-height: 0.9;
   letter-spacing: -0.04em;
   color: var(--blanco);
 }
-.tarjeta-mundo__nombre { min-width: 0; font-size: 18px; font-weight: 700; line-height: 1.2; color: var(--blanco); }
-.tarjeta-mundo__cartas { font-size: 16px; font-weight: 700; color: var(--blanco); }
-.tarjeta-mundo .medidor { height: 12px; }
-.tarjeta-mundo__juegos { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 8px; }
-.tarjeta-mundo__juegos .pildora { flex: 1 1 auto; min-height: 48px; padding: 0 12px; font-size: 18px; }
+.tarjeta-mundo__nombre { margin-top: 6px; font-size: 22px; font-weight: 700; line-height: 1.2; color: var(--blanco); }
+.tarjeta-mundo__cartas { margin-top: 10px; font-size: 18px; line-height: 1.2; color: var(--blanco); }
+.tarjeta-mundo .medidor { margin-top: 6px; height: 12px; }
+.tarjeta-mundo__juegos { display: flex; flex-direction: column; gap: 8px; margin-top: auto; padding-top: 14px; }
+.tarjeta-mundo__juegos .pildora { min-height: 48px; padding: 0 16px; }
 
 /* --- /estudio/N: sesión de preguntas --------------------------------------- */
 
