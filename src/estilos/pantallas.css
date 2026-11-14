@@ -253,12 +253,15 @@
 
 /* --- /estudio: rejilla de mundos ------------------------------------------- */
 
-/* Los 10 mundos caben sin scroll desde 1366×650: cabecera de 64 px y dos filas
-   que se reparten el alto (100dvh menos ~190 px de cabecera, márgenes y relieve). */
+/* Los 10 mundos caben sin scroll desde 1366×650 y el bloque se centra en alto:
+   24 + 64 (cabecera) + 36 + 2 × 220 (filas) + 32 + 36 (24 + relieve) = 632 px. */
 .lista-mundos .pantalla__contenido {
   max-width: 1480px;
-  padding: clamp(12px, 2.5dvh, 24px) clamp(24px, 4vw, 56px) clamp(20px, 3.5dvh, 32px);
-  gap: clamp(12px, 2.5dvh, 20px);
+  min-height: 100vh;
+  min-height: 100dvh;
+  justify-content: center;
+  padding: 24px clamp(24px, 4vw, 56px) calc(24px + var(--relieve));
+  gap: 36px;
 }
 .lista-mundos__cabecera { width: 100%; min-height: 64px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
 .lista-mundos__titulo {
@@ -278,12 +281,13 @@
   width: 100%;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  /* Mínimo: lo que pida el contenido (con menos alto, scroll). Máximo: el reparto. */
-  grid-auto-rows: minmax(min-content, clamp(208px, calc((100dvh - 190px) / 2), 300px));
-  gap: 18px;
+  /* Mínimo: lo que pida el contenido (con menos alto, scroll). Máximo: 220 px,
+     para no dejar hueco muerto entre la barra y los botones. */
+  grid-auto-rows: minmax(min-content, clamp(200px, calc((100dvh - 210px) / 2), 220px));
+  gap: 32px 22px; /* fila: relieve de 12 px + 20 de aire */
 }
-/* Por debajo de ~1240 px no caben los dos botones en una ficha de quinta parte. */
-@media (max-width: 1239px) {
+/* Por debajo de ~1260 px no caben los dos botones en una ficha de quinta parte. */
+@media (max-width: 1259px) {
   .lista-mundos__rejilla { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
 }
 .tarjeta-mundo {
