@@ -88,6 +88,8 @@ export const textos = {
     finRonda: 'Round complete!',
     aciertosRonda: (x, total) => `${x}/${total}`,
     volverAEstudio: 'Back to Study',
+    verCartas: 'See cards',
+    mundoCompleto: (n) => `World ${n} complete`,
     salir: 'Exit',
     bien: '¡Bien!',
     mal: (correcta) => `Era: ${correcta}`,

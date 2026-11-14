@@ -10,6 +10,7 @@ import {
   tiposDeEstudio,
   crearPreguntaEstudio,
   contarDesbloqueadas,
+  completaElMundo,
   pistaDe,
 } from '../src/motor/estudio.js'
 import { crearAleatorio } from '../src/motor/aleatorio.js'
@@ -32,6 +33,38 @@ describe('desbloqueo de cartas', () => {
     }
     assert.deepEqual(avisos, [false, false, false, false, false, true])
     assert.deepEqual(progresoDe(p, 'go'), { aciertos: 3, fallos: 3, desbloqueada: true })
+  })
+
+  test('avisa del mundo completo solo con la carta 9 -> 10', () => {
+    const mundo = delMundo(1)
+    const [ultimo, ...resto] = mundo
+    let p = Object.fromEntries(resto.map((v) => [v.verb, { aciertos: 3, fallos: 0, desbloqueada: true }]))
+    const avisos = []
+    for (let i = 0; i < ACIERTOS_PARA_CARTA + 1; i++) {
+      const r = registrarRespuesta(p, ultimo.verb, true, mundo)
+      p = r.progreso
+      avisos.push(r.mundoCompletadoAhora)
+    }
+    assert.deepEqual(avisos, [false, false, true, false], 'una vez completo, no vuelve a avisar')
+    assert.equal(contarDesbloqueadas(p, mundo), 10)
+
+    // Mundo ya completo al empezar: ningún acierto ni fallo avisa.
+    const completo = p
+    assert.equal(registrarRespuesta(completo, resto[0].verb, true, mundo).mundoCompletadoAhora, false)
+    assert.equal(registrarRespuesta(completo, resto[0].verb, false, mundo).mundoCompletadoAhora, false)
+    assert.equal(completaElMundo(completo, completo, mundo), false)
+  })
+
+  test('sin los verbos del mundo no hay aviso, y un fallo nunca completa', () => {
+    const mundo = delMundo(2)
+    const [ultimo, ...resto] = mundo
+    const p = {
+      ...Object.fromEntries(resto.map((v) => [v.verb, { aciertos: 3, fallos: 0, desbloqueada: true }])),
+      [ultimo.verb]: { aciertos: 2, fallos: 0, desbloqueada: false },
+    }
+    assert.equal(registrarRespuesta(p, ultimo.verb, false, mundo).mundoCompletadoAhora, false)
+    assert.equal(registrarRespuesta(p, ultimo.verb, true).mundoCompletadoAhora, false)
+    assert.equal(registrarRespuesta(p, ultimo.verb, true, mundo).mundoCompletadoAhora, true)
   })
 
   test('un fallo no resta aciertos', () => {

@@ -39,15 +39,26 @@ export function contarDesbloqueadas(progreso, verbos) {
   return verbos.filter((v) => estaDesbloqueada(progreso, v.verb)).length
 }
 
+// El mundo pasa de incompleto a completo entre `antes` y `despues`. Si ya estaba
+// completo antes, no cuenta: el aviso solo sale con la carta que lo cierra.
+export function completaElMundo(antes, despues, delMundo) {
+  const total = delMundo.length
+  return total > 0 && contarDesbloqueadas(antes, delMundo) < total && contarDesbloqueadas(despues, delMundo) === total
+}
+
 // Devuelve un progreso nuevo (no modifica el original). Un fallo no resta aciertos.
-export function registrarRespuesta(progreso, verb, acierto) {
+// Con `delMundo` (los verbos del mundo que se juega) dice también si esta
+// respuesta ha desbloqueado la última carta del mundo.
+export function registrarRespuesta(progreso, verb, acierto, delMundo = []) {
   const actual = progresoDe(progreso, verb)
   const siguiente = acierto
     ? { ...actual, aciertos: actual.aciertos + 1 }
     : { ...actual, fallos: actual.fallos + 1 }
   const desbloqueadaAhora = !actual.desbloqueada && siguiente.aciertos >= ACIERTOS_PARA_CARTA
   if (desbloqueadaAhora) siguiente.desbloqueada = true
-  return { progreso: { ...progreso, [verb]: siguiente }, desbloqueadaAhora }
+  const nuevo = { ...progreso, [verb]: siguiente }
+  const mundoCompletadoAhora = desbloqueadaAhora && completaElMundo(progreso, nuevo, delMundo)
+  return { progreso: nuevo, desbloqueadaAhora, mundoCompletadoAhora }
 }
 
 // Prioridad a los verbos con menos aciertos; empate al azar. Nunca repite el anterior
