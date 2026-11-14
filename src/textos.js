@@ -77,8 +77,8 @@ export const textos = {
   },
 
   estudio: {
-    elegirMundo: 'Elige un mundo',
-    cartasDelMundo: (x, total) => `Cartas ${x}/${total}`,
+    elegirMundo: 'Choose a world',
+    cartasDelMundo: (x, total) => `Cards ${x}/${total}`,
     pista: 'Hint',
     escuchar: 'Listen',
     escucharAyuda: 'Escuchar en inglés',
