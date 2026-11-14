@@ -34,7 +34,7 @@ export const textos = {
     },
     reto: {
       subtitulo: (semana, mundo) => (mundo === 1 ? `Week ${semana} · world 1` : `Week ${semana} · worlds 1 to ${mundo}`),
-      mejor: 'Your best',
+      mejor: 'All-time best',
       sinPuntos: 'No score yet',
       dias: (n) => (n === 1 ? '1 day left' : `${n} days left`),
     },

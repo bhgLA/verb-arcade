@@ -23,6 +23,29 @@ function mundoDeEstudio(progreso) {
 // Orden de pintado de la referencia: swam debajo, went encima, ate delante.
 const ORDEN_FICHAS = [1, 0, 2]
 
+// Fondo a sangre: círculos en coordenadas del lienzo (escalados con él, pero
+// sin recortar en sus bordes), olas repetidas a todo el ancho y arena debajo
+// del lienzo si la ventana es más alta que 16:9.
+function FondoInicio() {
+  return (
+    <div className="inicio-fondo" aria-hidden="true">
+      <svg className="inicio-fondo__formas" viewBox="0 0 1366 768">
+        <circle className="fondo-mundo__forma" cx="130" cy="120" r="360" />
+        <circle className="fondo-mundo__anillo" cx="130" cy="120" r="250" />
+        <circle className="fondo-mundo__forma" cx="1280" cy="360" r="300" />
+        <circle className="fondo-mundo__anillo" cx="1280" cy="360" r="190" />
+        <rect className="fondo-mundo__forma" x="610" y="470" width="140" height="140" rx="40" transform="rotate(18 680 540)" />
+        <circle className="fondo-mundo__anillo" cx="120" cy="560" r="14" />
+        <circle className="fondo-mundo__anillo" cx="196" cy="604" r="8" />
+        <circle className="fondo-mundo__anillo" cx="1236" cy="590" r="12" />
+        <circle className="fondo-mundo__anillo" cx="1296" cy="540" r="7" />
+      </svg>
+      <div className="inicio-fondo__olas" />
+      <div className="inicio-fondo__arena" />
+    </div>
+  )
+}
+
 // Todavía no hay ranking (llega con Supabase, paso 5).
 const TOP_RANKING = []
 
@@ -45,29 +68,7 @@ export default function Inicio() {
   }, [])
 
   return (
-    <Escenario mundo={MUNDO_INICIO}>
-      <svg className="fondo-mundo" viewBox="0 0 1366 768" aria-hidden="true">
-        <circle className="fondo-mundo__forma" cx="130" cy="120" r="360" />
-        <circle className="fondo-mundo__anillo" cx="130" cy="120" r="250" />
-        <circle className="fondo-mundo__forma" cx="1280" cy="360" r="300" />
-        <circle className="fondo-mundo__anillo" cx="1280" cy="360" r="190" />
-        <rect className="fondo-mundo__forma" x="610" y="470" width="140" height="140" rx="40" transform="rotate(18 680 540)" />
-        <circle className="fondo-mundo__anillo" cx="120" cy="560" r="14" />
-        <circle className="fondo-mundo__anillo" cx="196" cy="604" r="8" />
-        <circle className="fondo-mundo__anillo" cx="1236" cy="590" r="12" />
-        <circle className="fondo-mundo__anillo" cx="1296" cy="540" r="7" />
-      </svg>
-      <svg className="olas inicio__olas" viewBox="0 0 1366 190" preserveAspectRatio="none" aria-hidden="true">
-        <path
-          className="olas__1"
-          d="M0 52 Q 85 8 171 52 T 341 52 T 512 52 T 683 52 T 854 52 T 1025 52 T 1195 52 T 1366 52 L1366 190 L0 190 Z"
-        />
-        <path
-          className="olas__2"
-          d="M0 98 Q 85 56 171 98 T 341 98 T 512 98 T 683 98 T 854 98 T 1025 98 T 1195 98 T 1366 98 L1366 190 L0 190 Z"
-        />
-      </svg>
-
+    <Escenario mundo={MUNDO_INICIO} className="escenario--a-sangre" fondo={<FondoInicio />}>
       <main className="inicio">
         <header className="inicio__cabecera">
           <h1 className="inicio__titulo">{textos.titulo}</h1>

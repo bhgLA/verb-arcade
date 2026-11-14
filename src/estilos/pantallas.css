@@ -61,7 +61,46 @@
 
 /* --- Inicio: lienzo de 1366×768, medidas de diseno/referencia-home-reef.html --- */
 
-.escenario__lienzo .olas.inicio__olas { height: 190px; }
+/* Fondo a sangre, fuera del lienzo escalado. Medidas del lienzo × --escala:
+   el lienzo mide 1366×768 y está centrado en la ventana. */
+.escenario--a-sangre .escenario__lienzo { background-color: transparent; }
+.inicio-fondo { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.inicio-fondo__formas {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1366px;
+  height: 768px;
+  overflow: visible;
+  transform: translate(-50%, -50%) scale(var(--escala, 1));
+}
+/* Olas: un periodo (1366 / 4 = 341.5 px) repetido en horizontal. El centro de
+   la ventana cae en el inicio de un periodo, igual que el centro del lienzo.
+   Capa de arriba #EFD6A0 (--arena-2), debajo #F7E7C2 (--arena). */
+.inicio-fondo__olas {
+  --periodo: calc(341.5px * var(--escala, 1));
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: calc(190px * var(--escala, 1));
+  top: calc(50% + 194px * var(--escala, 1));
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 341.5 190' preserveAspectRatio='none'%3E%3Cpath fill='%23EFD6A0' d='M0 98Q85.375 56 170.75 98T341.5 98V190H0Z'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 341.5 190' preserveAspectRatio='none'%3E%3Cpath fill='%23F7E7C2' d='M0 52Q85.375 8 170.75 52T341.5 52V190H0Z'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-size: var(--periodo) 100%;
+  background-position: calc(50% + var(--periodo) / 2) 0;
+}
+/* Lo que sobra bajo el lienzo (ventanas más altas que 16:9). Empieza 1 px antes
+   para que no asome una línea entre la ola y el relleno. */
+.inicio-fondo__arena {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: calc(50% + 384px * var(--escala, 1) - 1px);
+  background: var(--arena-2);
+}
 .inicio { position: absolute; inset: 0; }
 
 .inicio__cabecera { position: absolute; left: 64px; top: 64px; width: 820px; }
@@ -73,7 +112,7 @@
   letter-spacing: -0.045em;
   color: var(--blanco);
 }
-.inicio__lema { margin-top: 20px; max-width: 560px; font-size: 26px; line-height: 1.4; color: var(--blanco); }
+.inicio__lema { margin-top: 20px; max-width: 640px; font-size: 26px; line-height: 1.4; color: var(--blanco); }
 
 .inicio__sello {
   position: absolute;

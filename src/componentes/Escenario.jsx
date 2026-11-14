@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 
 // Lienzo fijo de 1366×768 (la base de la referencia) escalado para caber en
 // la ventana sin deformarse. Lo que sobra alrededor lleva el color del mundo.
+// `fondo` es una capa opcional a sangre: ocupa toda la ventana, va detrás del
+// lienzo y puede usar --escala para alinearse con él.
 export const ANCHO = 1366
 export const ALTO = 768
 
@@ -10,7 +12,7 @@ function escalaActual() {
   return Math.min(window.innerWidth / ANCHO, window.innerHeight / ALTO)
 }
 
-export default function Escenario({ mundo, children }) {
+export default function Escenario({ mundo, fondo = null, className = '', children }) {
   const [escala, setEscala] = useState(escalaActual)
   useEffect(() => {
     const ajustar = () => setEscala(escalaActual())
@@ -18,8 +20,9 @@ export default function Escenario({ mundo, children }) {
     return () => window.removeEventListener('resize', ajustar)
   }, [])
   return (
-    <div className="escenario superficie-mundo" data-mundo={mundo}>
-      <div className="escenario__lienzo superficie-mundo" style={{ '--escala': escala }}>
+    <div className={`escenario superficie-mundo ${className}`} data-mundo={mundo} style={{ '--escala': escala }}>
+      {fondo}
+      <div className="escenario__lienzo superficie-mundo">
         {children}
       </div>
     </div>
