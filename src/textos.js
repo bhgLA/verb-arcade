@@ -42,9 +42,6 @@ export const textos = {
       subtitulo: 'Verbs you have unlocked',
       de: (total) => `of ${total}`,
     },
-    ranking: {
-      vacio: 'Be the first to score',
-    },
   },
 
   // Etiqueta pequeña encima del verbo del reto.
@@ -66,7 +63,47 @@ export const textos = {
   },
 
   ranking: {
-    pronto: 'Weekly ranking · coming soon',
+    juegos: { verb_pop: 'Verb Pop', mimica: 'Mímica' },
+    semana: (juego, n) => `${juego} · Week ${n}`,
+    todos: 'Everyone',
+    miClase: 'My class',
+    vistas: 'Ranking view',
+    tuApodo: 'Your nick',
+    cargando: 'Loading…',
+    vacio: 'No scores yet this week',
+    sinConexion: 'El ranking no está disponible ahora.',
+    // Código de clase (vista "Mi clase").
+    clase: (codigo) => `Class ${codigo}`,
+    campoClase: 'Class code',
+    guardar: 'Save',
+    comprobando: 'Checking…',
+    quitar: 'Remove',
+    ayudaClase: 'Pide el código de clase a tu profe.',
+    codigoNoExiste: 'Ese código no existe.',
+    // Ficha Ranking de la portada: el líder de la semana o una línea neutra.
+    portada: {
+      subtitulo: 'Top player this week',
+      vacio: 'No scores yet',
+      sinConexion: "See who's on top",
+    },
+    enviando: 'Sending to the ranking…',
+    guardada: "Saved in this week's ranking",
+    yaEstaba: 'Your best this week is already in the ranking',
+    reintentar: 'Try again',
+    // Una clave por motivo de src/datos/errores.js. En ninguno se pierde la partida:
+    // el récord personal ya está guardado en el navegador.
+    errores: {
+      jugador: 'No hemos podido guardar la partida en el ranking. Tu récord sigue guardado aquí.',
+      juego: 'Este juego todavía no tiene ranking. Tu récord sigue guardado aquí.',
+      puntuacion: 'Esta puntuación no ha entrado en el ranking. Tu récord sigue guardado aquí.',
+      apodo: 'Tu apodo no ha funcionado. Te hemos dado otro: vuelve a intentarlo.',
+      codigoClase: 'El código de clase tiene de 2 a 8 letras o números. Revísalo.',
+      claseDesconocida: 'No encontramos esa clase. Pregunta el código a tu profe.',
+      limiteDiario: 'Por hoy ya has enviado todas tus partidas. Mañana puedes volver a subir.',
+      muyRapido: 'Espera unos segundos y vuelve a enviarla.',
+      sinConexion: 'El ranking no está disponible ahora. Tu récord sigue guardado aquí.',
+      desconocido: 'Algo ha fallado con el ranking. Tu récord sigue guardado aquí.',
+    },
   },
 
   // Enunciados de las preguntas. En mímica el enunciado es el propio emoji.
