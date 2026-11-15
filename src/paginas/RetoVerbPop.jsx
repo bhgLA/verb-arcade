@@ -1,6 +1,19 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { textos } from '../textos.js'
-import { verbos, guardarRecordSiMejor, leerRecord, enviarPuntuacion, supabaseConfigurado } from '../datos/index.js'
+import {
+  verbos,
+  guardarRecordSiMejor,
+  leerRecord,
+  guardarMejorSemana,
+  enviarPuntuacion,
+  supabaseConfigurado,
+  leerApodo,
+  leerClase,
+  elegirApodo,
+  apodoElegido,
+  apodoParaElegir,
+  avisarCambioPerfil,
+} from '../datos/index.js'
 import { semanaISO, mundoDeLaSemana } from '../motor/semana.js'
 import { secuenciaSemanal } from '../motor/secuencia.js'
 import { crearPartida, partidaReducer, alturaBloques, tiempoRestante, FASE } from '../motor/partida.js'
@@ -11,6 +24,9 @@ import PantallaVerbPop from '../componentes/verbpop/PantallaVerbPop.jsx'
 import { useReloj } from '../componentes/verbpop/useReloj.js'
 import { useTeclado } from '../componentes/verbpop/useTeclado.js'
 import { estadosDeBloques } from '../componentes/verbpop/estados.js'
+import { CuerpoResultado } from '../componentes/verbpop/CuerpoResultado.js'
+import { SelectorApodo } from '../componentes/ranking/SelectorApodo.js'
+import { Enlace } from '../rutas.jsx'
 
 const JUEGO = 'verb_pop'
 
@@ -71,60 +87,33 @@ function Partida({ preguntas, mundo, alTerminar }) {
   )
 }
 
-// Motivos en los que tiene sentido volver a enviar la misma partida.
-const REINTENTABLES = ['muyRapido', 'sinConexion']
-
-// Estado del envío al ranking: null (no se envía), { estado: 'enviando' | 'guardada' | 'igual' | 'error', motivo }.
-function AvisoRanking({ envio, alReintentar }) {
-  if (!envio) return null
-  const r = textos.ranking
-  const texto =
-    envio.estado === 'enviando' ? r.enviando
-    : envio.estado === 'guardada' ? r.guardada
-    : envio.estado === 'igual' ? r.yaEstaba
-    : r.errores[envio.motivo] ?? r.errores.desconocido
+function Resultado({ mundo, ...props }) {
   return (
-    <div className="resultado-final__ranking">
-      <p className="texto-mundo" role="status">{texto}</p>
-      {envio.estado === 'error' && REINTENTABLES.includes(envio.motivo) && (
-        <button type="button" className="pildora pildora--pequena" onClick={alReintentar}>
-          {r.reintentar}
-        </button>
-      )}
-    </div>
+    <PantallaMundo mundo={mundo} olas className="resultado-final resumen">
+      <BarraSuperior atras="/reto" izquierda={<Chip mundo={mundo} />} />
+      <CuerpoResultado {...props} Enlace={Enlace} />
+    </PantallaMundo>
   )
 }
 
-function Resultado({ mundo, resultado, envio, alReintentar, alRepetir }) {
-  const v = textos.verbPop
+// Primer Challenge sin apodo elegido: el selector, con el apodo generado
+// preseleccionado, y "Start" guarda el apodo y empieza. Solo una vez.
+function PrimerApodo({ mundo, alEmpezar }) {
+  const [propuesto] = useState(() => apodoParaElegir())
+  const alGuardar = (adjetivo, animal) => {
+    const antes = leerApodo()
+    const nuevo = elegirApodo(adjetivo, animal)
+    // Si ya había enviado algo esta semana con el apodo generado, se aplica el perfil pendiente.
+    if (nuevo && nuevo !== antes) avisarCambioPerfil()
+    alEmpezar()
+  }
   return (
-    <PantallaMundo mundo={mundo} olas className="resultado-final">
+    <PantallaMundo mundo={mundo} olas className="intro-juego primer-apodo">
       <BarraSuperior atras="/reto" izquierda={<Chip mundo={mundo} />} />
-      <h1 className="titulo-grande">{resultado.fase === FASE.FIN_TIEMPO ? v.finTiempo : v.finVidas}</h1>
-      <dl className="resultado-final__datos">
-        <div className="tarjeta">
-          <dt>{v.puntos}</dt>
-          <dd>{textos.numero(resultado.puntos)}</dd>
-        </div>
-        <div className="tarjeta">
-          <dt>{v.aciertos}</dt>
-          <dd>{resultado.aciertos}</dd>
-        </div>
-        <div className="tarjeta">
-          <dt>{v.mejorCombo}</dt>
-          <dd>x{resultado.mejorCombo}</dd>
-          <dd className="resultado-final__extra">{v.seguidos(resultado.mejorRacha)}</dd>
-        </div>
-        <div className="tarjeta">
-          <dt>{v.record}</dt>
-          <dd>{textos.numero(resultado.record)}</dd>
-        </div>
-      </dl>
-      {resultado.nuevo && <p className="aviso-acento">{v.nuevoRecord}</p>}
-      <AvisoRanking envio={envio} alReintentar={alReintentar} />
-      <button type="button" className="pildora" onClick={alRepetir} autoFocus>
-        {v.otraVez}
-      </button>
+      <h1 className="titulo-grande">{textos.verbPop.titulo}</h1>
+      <section className="tarjeta primer-apodo__tarjeta">
+        <SelectorApodo apodo={propuesto} alGuardar={alGuardar} accion={textos.verbPop.empezar} />
+      </section>
     </PantallaMundo>
   )
 }
@@ -146,26 +135,24 @@ export default function RetoVerbPop() {
     setEnvio({ estado: 'enviando' })
     const r = await enviarPuntuacion(JUEGO, puntos)
     if (id !== ultimoEnvio.current) return
-    if (r.ok) setEnvio({ estado: r.enviada ? 'guardada' : 'igual' })
+    // Apodo y clase se leen después: si el servidor rechazó el apodo, ya es el nuevo.
+    if (r.ok) setEnvio({ estado: r.enviada ? 'guardada' : 'igual', apodo: leerApodo(), clase: leerClase() })
     else setEnvio({ estado: 'error', motivo: r.motivo })
   }, [])
 
   const alTerminar = useCallback((s) => {
-    const { record, nuevo } = guardarRecordSiMejor(JUEGO, s.puntos)
-    setResultado({
-      fase: s.fase,
-      puntos: s.puntos,
-      aciertos: s.aciertos,
-      mejorCombo: s.mejorCombo,
-      mejorRacha: s.mejorRacha,
-      record,
-      nuevo,
-    })
+    // El récord de siempre se sigue guardando: lo usan la intro y el menú de Challenge.
+    guardarRecordSiMejor(JUEGO, s.puntos)
+    const mejorSemana = guardarMejorSemana(JUEGO, semana, s.puntos)
+    setResultado({ fase: s.fase, puntos: s.puntos, mejorSemana })
     setFase('resultado')
     enviar(s.puntos)
-  }, [enviar])
+  }, [enviar, semana])
+
+  const [conApodo, setConApodo] = useState(() => apodoElegido())
 
   const empezar = () => {
+    setConApodo(true)
     ultimoEnvio.current++
     setEnvio(null)
     setPartida((n) => n + 1)
@@ -184,6 +171,8 @@ export default function RetoVerbPop() {
       />
     )
   }
+
+  if (!conApodo) return <PrimerApodo mundo={mundo} alEmpezar={empezar} />
 
   const record = leerRecord(JUEGO)
   return (

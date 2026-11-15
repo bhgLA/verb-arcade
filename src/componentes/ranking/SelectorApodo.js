@@ -1,5 +1,7 @@
 // Selector de apodo: una fila de adjetivos y otra de animales, de listas cerradas.
 // Sin campo de texto. El número es el que ya tenía el niño.
+// En /ranking se abre con "Change" (Save y Cancel); en el primer Challenge va
+// dentro de la pantalla, con accion = "Start" y sin alCancelar.
 // Sin JSX a propósito, como CuerpoRanking: los tests lo pintan en node.
 import { createElement as h, useEffect, useRef, useState } from 'react'
 import { textos } from '../../textos.js'
@@ -25,7 +27,7 @@ function Grupo({ etiqueta, opciones, elegida, alElegir }) {
   )
 }
 
-export function SelectorApodo({ apodo, alGuardar, alCancelar }) {
+export function SelectorApodo({ apodo, alGuardar, alCancelar = null, accion = null }) {
   const r = textos.ranking
   const [inicio] = useState(() => piezasDelApodo(apodo))
   const [adjetivo, setAdjetivo] = useState(inicio.adjetivo)
@@ -42,10 +44,10 @@ export function SelectorApodo({ apodo, alGuardar, alCancelar }) {
     {
       ref: caja,
       className: 'selector-apodo',
-      role: 'dialog',
+      role: alCancelar ? 'dialog' : 'group',
       'aria-label': r.elegirApodo,
       onKeyDown: (e) => {
-        if (e.key === 'Escape') alCancelar()
+        if (e.key === 'Escape' && alCancelar) alCancelar()
       },
     },
     // La única etiqueta visible: cómo queda el apodo.
@@ -57,10 +59,14 @@ export function SelectorApodo({ apodo, alGuardar, alCancelar }) {
       { className: 'selector-apodo__acciones' },
       h(
         'button',
-        { type: 'button', className: 'pildora pildora--pequena pildora--acento', onClick: () => alGuardar(adjetivo, animal) },
-        r.guardar,
+        {
+          type: 'button',
+          className: accion ? 'pildora resumen__principal' : 'pildora pildora--pequena pildora--acento',
+          onClick: () => alGuardar(adjetivo, animal),
+        },
+        accion ?? r.guardar,
       ),
-      h('button', { type: 'button', className: 'ranking__quitar', onClick: alCancelar }, r.cancelar),
+      alCancelar && h('button', { type: 'button', className: 'ranking__quitar', onClick: alCancelar }, r.cancelar),
     ),
   )
 }
