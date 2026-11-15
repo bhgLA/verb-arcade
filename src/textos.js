@@ -187,6 +187,11 @@ export const textos = {
     record: 'Best',
     nuevoRecord: 'New record!',
     otraVez: 'Play again',
+    // Fin de Challenge: puntuación, mejor de la semana, dónde se ha guardado y tres salidas.
+    mejorSemana: 'Your best this week',
+    guardadaComo: (apodo, clase) => (clase ? `Saved as ${apodo} · Class ${clase}` : `Saved as ${apodo}`),
+    irARanking: 'Ranking',
+    irAInicio: 'Home',
     opcion: (n, texto) => `Opción ${n}: ${texto}`,
     cuentaAtras: 'Tiempo del bloque',
     elegirJuego: 'Choose a game',

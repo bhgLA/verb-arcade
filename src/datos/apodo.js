@@ -10,6 +10,8 @@ export const ANIMALES = Object.freeze([...listas.animales])
 export const FORMATO_APODO = /^[A-Za-z0-9 _-]{3,20}$/
 
 const CLAVE = 'apodo'
+// true cuando el niño ha elegido su apodo; el generado por defecto no la pone.
+const CLAVE_ELEGIDO = 'apodoElegido'
 
 const numeroAlAzar = (azar) => 10 + Math.floor(azar() * 90)
 
@@ -59,5 +61,20 @@ export function elegirApodo(adjetivo, animal) {
   const nuevo = componerApodo({ adjetivo, animal, numero })
   if (!FORMATO_APODO.test(nuevo)) return null
   guardar(CLAVE, nuevo)
+  guardar(CLAVE_ELEGIDO, true)
   return nuevo
+}
+
+export function apodoElegido() {
+  return leer(CLAVE_ELEGIDO) === true
+}
+
+// Para el primer uso: el apodo generado, si sus piezas son de las listas
+// actuales; si no, otra combinación al azar con el mismo número.
+export function apodoParaElegir(azar = Math.random) {
+  const actual = leerApodo()
+  const piezas = piezasDelApodo(actual, azar)
+  if (componerApodo(piezas) === actual) return actual
+  const de = (lista) => lista[Math.floor(azar() * lista.length)]
+  return componerApodo({ adjetivo: de(ADJETIVOS), animal: de(ANIMALES), numero: piezas.numero })
 }
