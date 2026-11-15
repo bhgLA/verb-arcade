@@ -33,6 +33,12 @@ function diaEnMadrid(fecha) {
   return { t, diaSemana: (new Date(t).getUTCDay() + 6) % 7 }
 }
 
+// Día de calendario en Madrid ('2026-11-15'), el mismo que usa el límite diario del servidor.
+export function diaMadrid(fecha = new Date()) {
+  comprobarFecha(fecha, 'diaMadrid')
+  return formateador.format(fecha)
+}
+
 export function semanaISO(fecha = new Date()) {
   comprobarFecha(fecha, 'semanaISO')
   const { t, diaSemana } = diaEnMadrid(fecha)
