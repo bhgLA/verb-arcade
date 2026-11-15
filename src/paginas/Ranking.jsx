@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { textos } from '../textos.js'
-import { leerApodo, leerClase, guardarClase, validarYGuardarClase } from '../datos/index.js'
+import { leerApodo, elegirApodo, avisarCambioApodo, leerClase, guardarClase, validarYGuardarClase } from '../datos/index.js'
 import { semanaISO, mundoDeLaSemana, numeroDeSemana } from '../motor/semana.js'
 import { PantallaMundo, BarraSuperior } from '../componentes/Pantalla.jsx'
 import { Chip } from '../componentes/Piezas.jsx'
 import { CuerpoRanking } from '../componentes/ranking/CuerpoRanking.js'
+import { SelectorApodo } from '../componentes/ranking/SelectorApodo.js'
 import { CARGANDO, VISTA, cargarVista } from '../componentes/ranking/estado.js'
 
 const r = textos.ranking
@@ -70,7 +71,9 @@ function CampoClase({ alGuardar }) {
 export default function Ranking({ juego = 'verb_pop' }) {
   const semana = useMemo(() => semanaISO(), [])
   const mundo = mundoDeLaSemana(semana)
-  const apodo = useMemo(() => leerApodo(), [])
+  const [apodo, setApodo] = useState(() => leerApodo())
+  const [eligiendo, setEligiendo] = useState(false)
+  const botonCambiar = useRef(null)
   const [vista, setVista] = useState(VISTA.TODOS)
   const [clase, setClase] = useState(() => leerClase())
   const [estado, setEstado] = useState(CARGANDO)
@@ -87,6 +90,22 @@ export default function Ranking({ juego = 'verb_pop' }) {
   useEffect(() => {
     cargar()
   }, [cargar])
+
+  const cerrarSelector = () => {
+    setEligiendo(false)
+    requestAnimationFrame(() => botonCambiar.current?.focus())
+  }
+
+  // Sin avisos: si el reenvío sale, la lista se recarga con el apodo nuevo;
+  // si no, queda pendiente para la próxima partida de Challenge.
+  const guardarApodo = async (adjetivo, animal) => {
+    const nuevo = elegirApodo(adjetivo, animal)
+    cerrarSelector()
+    if (!nuevo || nuevo === apodo) return
+    setApodo(nuevo)
+    const { reenviados } = await avisarCambioApodo()
+    if (reenviados.length > 0) cargar()
+  }
 
   const quitarClase = () => {
     guardarClase('')
@@ -110,9 +129,16 @@ export default function Ranking({ juego = 'verb_pop' }) {
       <BarraSuperior
         izquierda={<Chip mundo={mundo} />}
         derecha={
-          <p className="ranking__apodo">
-            {r.tuApodo}: <strong>{apodo}</strong>
-          </p>
+          <div className="ranking__apodo">
+            <p>
+              {r.tuApodo}: <strong>{apodo}</strong>
+            </p>
+            {!eligiendo && (
+              <button ref={botonCambiar} type="button" className="ranking__cambiar" onClick={() => setEligiendo(true)}>
+                {r.cambiarApodo}
+              </button>
+            )}
+          </div>
         }
       />
       <div className="ranking__cabecera">
@@ -123,6 +149,11 @@ export default function Ranking({ juego = 'verb_pop' }) {
         </div>
       </div>
 
+      {eligiendo ? (
+        <section className="tarjeta ranking__tarjeta">
+          <SelectorApodo apodo={apodo} alGuardar={guardarApodo} alCancelar={cerrarSelector} />
+        </section>
+      ) : (
       <section className="tarjeta ranking__tarjeta" role="tabpanel" aria-label={vista === VISTA.CLASE ? r.miClase : r.todos}>
         {estado.fase !== 'sinClase' && (
         <div className="ranking__tarjeta-cabecera">
@@ -143,6 +174,7 @@ export default function Ranking({ juego = 'verb_pop' }) {
           <CuerpoRanking estado={estado} miApodo={apodo} alReintentar={cargar} />
         )}
       </section>
+      )}
     </PantallaMundo>
   )
 }
