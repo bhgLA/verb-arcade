@@ -475,6 +475,15 @@
    Un botón principal (.pildora con relieve en --acento) y dos secundarios
    (.pildora--pequena) debajo, en fila. */
 .resultado-final__datos--uno { grid-template-columns: minmax(0, 260px); justify-content: center; }
+/* Fin de Challenge: puntuación y mejor de la semana, una al lado de otra. */
+.resultado-final__datos--dos { grid-template-columns: repeat(2, minmax(0, 300px)); justify-content: center; }
+@media (max-width: 560px) {
+  .resultado-final__datos--dos { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Primer Challenge: el selector de apodo en una tarjeta, con "Start" como botón principal. */
+.primer-apodo__tarjeta { width: min(100%, 1100px); padding: 20px 28px 28px; }
+.primer-apodo .selector-apodo__acciones { justify-content: center; padding-top: 6px; }
 
 .resumen__botones { display: flex; flex-direction: column; align-items: center; gap: 28px; }
 .resumen__principal {
