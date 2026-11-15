@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { textos } from '../textos.js'
-import { leerApodo, elegirApodo, avisarCambioApodo, leerClase, guardarClase, validarYGuardarClase } from '../datos/index.js'
+import { leerApodo, elegirApodo, avisarCambioPerfil, leerClase, guardarClase, validarYGuardarClase } from '../datos/index.js'
 import { semanaISO, mundoDeLaSemana, numeroDeSemana } from '../motor/semana.js'
 import { PantallaMundo, BarraSuperior } from '../componentes/Pantalla.jsx'
 import { Chip } from '../componentes/Piezas.jsx'
@@ -79,13 +79,15 @@ export default function Ranking({ juego = 'verb_pop' }) {
   const [estado, setEstado] = useState(CARGANDO)
   // Si el niño cambia de pestaña antes de que llegue la respuesta, la vieja no pisa la nueva.
   const peticion = useRef(0)
+  // Sube tras un cambio de apodo o de clase, para volver a pedir la lista.
+  const [recargas, setRecargas] = useState(0)
 
   const cargar = useCallback(async () => {
     const id = ++peticion.current
     setEstado(CARGANDO)
     const nuevo = await cargarVista(juego, vista, clase)
     if (id === peticion.current) setEstado(nuevo)
-  }, [juego, vista, clase])
+  }, [juego, vista, clase, recargas])
 
   useEffect(() => {
     cargar()
@@ -96,20 +98,31 @@ export default function Ranking({ juego = 'verb_pop' }) {
     requestAnimationFrame(() => botonCambiar.current?.focus())
   }
 
-  // Sin avisos: si el reenvío sale, la lista se recarga con el apodo nuevo;
-  // si no, queda pendiente para la próxima partida de Challenge.
-  const guardarApodo = async (adjetivo, animal) => {
+  // Apodo y clase son un mismo perfil. Sin avisos: si el reenvío sale, la lista
+  // llega ya con el perfil nuevo; si queda pendiente, la fila propia se pinta con
+  // el apodo nuevo hasta la próxima partida de Challenge.
+  const perfilCambiado = async () => {
+    await avisarCambioPerfil()
+    setRecargas((n) => n + 1)
+  }
+
+  const guardarApodo = (adjetivo, animal) => {
     const nuevo = elegirApodo(adjetivo, animal)
     cerrarSelector()
     if (!nuevo || nuevo === apodo) return
     setApodo(nuevo)
-    const { reenviados } = await avisarCambioApodo()
-    if (reenviados.length > 0) cargar()
+    perfilCambiado()
+  }
+
+  const cambiarClase = (nueva) => {
+    if (nueva === clase) return
+    setClase(nueva)
+    perfilCambiado()
   }
 
   const quitarClase = () => {
     guardarClase('')
-    setClase(null)
+    cambiarClase(null)
   }
 
   const pestana = (v, etiqueta) => (
@@ -169,7 +182,7 @@ export default function Ranking({ juego = 'verb_pop' }) {
         </div>
         )}
         {estado.fase === 'sinClase' ? (
-          <CampoClase alGuardar={setClase} />
+          <CampoClase alGuardar={cambiarClase} />
         ) : (
           <CuerpoRanking estado={estado} miApodo={apodo} alReintentar={cargar} />
         )}

@@ -8,8 +8,11 @@ import { renderToStaticMarkup } from 'react-dom/server'
 
 import { configurarSupabase } from '../src/datos/supabase.js'
 import { ADJETIVOS, ANIMALES, piezasDelApodo, elegirApodo, leerApodo } from '../src/datos/apodo.js'
-import { enviarPuntuacion, avisarCambioApodo } from '../src/datos/ranking.js'
+import { enviarPuntuacion, avisarCambioPerfil } from '../src/datos/ranking.js'
+import { guardarClase } from '../src/datos/clase.js'
+import { aEstado, cargarVista, VISTA } from '../src/componentes/ranking/estado.js'
 import { SelectorApodo } from '../src/componentes/ranking/SelectorApodo.js'
+import { CuerpoRanking } from '../src/componentes/ranking/CuerpoRanking.js'
 import { semanaISO } from '../src/motor/semana.js'
 
 const SCHEMA = readFileSync(new URL('../supabase/schema.sql', import.meta.url), 'utf8')
@@ -102,7 +105,7 @@ describe('el cambio de apodo llega al servidor', () => {
   const semana = () => semanaISO()
 
   test('sin puntuación esta semana no envía nada', async () => {
-    assert.deepEqual(await avisarCambioApodo(), { reenviados: [], pendientes: [] })
+    assert.deepEqual(await avisarCambioPerfil(), { reenviados: [], pendientes: [] })
     assert.equal(llamadas.length, 0)
   })
 
@@ -110,39 +113,39 @@ describe('el cambio de apodo llega al servidor', () => {
     poner('enviado:verb_pop', { semana: semana(), puntos: 3200, clase: null })
     poner('apodo', 'BraveFox12')
     elegirApodo('Magic', 'Owl')
-    assert.deepEqual(await avisarCambioApodo(), { reenviados: ['verb_pop'], pendientes: [] })
+    assert.deepEqual(await avisarCambioPerfil(), { reenviados: ['verb_pop'], pendientes: [] })
     assert.equal(envios().length, 1)
     assert.equal(envios()[0].args.p_nick, 'MagicOwl12')
     assert.equal(envios()[0].args.p_score, 3200)
-    assert.equal(sacar('apodoPendiente:verb_pop'), false)
+    assert.equal(sacar('perfilPendiente:verb_pop'), false)
   })
 
   test('segundo cambio del mismo día: queda pendiente y no llama al servidor', async () => {
     poner('enviado:verb_pop', { semana: semana(), puntos: 3200, clase: null })
-    await avisarCambioApodo()
+    await avisarCambioPerfil()
     llamadas = []
-    assert.deepEqual(await avisarCambioApodo(), { reenviados: [], pendientes: ['verb_pop'] })
+    assert.deepEqual(await avisarCambioPerfil(), { reenviados: [], pendientes: ['verb_pop'] })
     assert.equal(llamadas.length, 0)
-    assert.equal(sacar('apodoPendiente:verb_pop'), true)
+    assert.equal(sacar('perfilPendiente:verb_pop'), true)
   })
 
   test('si el reenvío falla queda pendiente', async () => {
     poner('enviado:verb_pop', { semana: semana(), puntos: 3200, clase: null })
     responder = error('too fast')
-    assert.deepEqual(await avisarCambioApodo(), { reenviados: [], pendientes: ['verb_pop'] })
-    assert.equal(sacar('apodoPendiente:verb_pop'), true)
+    assert.deepEqual(await avisarCambioPerfil(), { reenviados: [], pendientes: ['verb_pop'] })
+    assert.equal(sacar('perfilPendiente:verb_pop'), true)
   })
 
   test('pendiente: la próxima partida envía aunque no mejore y no baja la mejor guardada', async () => {
     poner('enviado:verb_pop', { semana: semana(), puntos: 3200, clase: null })
-    poner('apodoPendiente:verb_pop', true)
+    poner('perfilPendiente:verb_pop', true)
     poner('apodo', 'JollyKoala55')
 
     assert.deepEqual(await enviarPuntuacion('verb_pop', 900), { ok: true, enviada: false })
     assert.equal(envios().length, 1)
     assert.equal(envios()[0].args.p_nick, 'JollyKoala55')
-    assert.deepEqual(sacar('enviado:verb_pop'), { semana: semana(), puntos: 3200, clase: null })
-    assert.equal(sacar('apodoPendiente:verb_pop'), false)
+    assert.deepEqual(sacar('enviado:verb_pop'), { semana: semana(), puntos: 3200, clase: null, nick: 'JollyKoala55' })
+    assert.equal(sacar('perfilPendiente:verb_pop'), false)
 
     // Ya sin marca, otra partida peor no gasta envío.
     llamadas = []
@@ -152,19 +155,19 @@ describe('el cambio de apodo llega al servidor', () => {
 
   test('pendiente con fallo: la partida no enseña error y la marca sigue', async () => {
     poner('enviado:verb_pop', { semana: semana(), puntos: 3200, clase: null })
-    poner('apodoPendiente:verb_pop', true)
+    poner('perfilPendiente:verb_pop', true)
     responder = error('daily limit')
     assert.deepEqual(await enviarPuntuacion('verb_pop', 900), { ok: true, enviada: false })
-    assert.equal(sacar('apodoPendiente:verb_pop'), true)
+    assert.equal(sacar('perfilPendiente:verb_pop'), true)
     assert.equal(sacar('enviado:verb_pop').puntos, 3200)
   })
 
   test('pendiente y la partida mejora: guarda la nueva mejor', async () => {
     poner('enviado:verb_pop', { semana: semana(), puntos: 3200, clase: null })
-    poner('apodoPendiente:verb_pop', true)
+    poner('perfilPendiente:verb_pop', true)
     assert.deepEqual(await enviarPuntuacion('verb_pop', 4100), { ok: true, enviada: true })
     assert.equal(sacar('enviado:verb_pop').puntos, 4100)
-    assert.equal(sacar('apodoPendiente:verb_pop'), false)
+    assert.equal(sacar('perfilPendiente:verb_pop'), false)
   })
 })
 
@@ -191,5 +194,130 @@ describe('selector', () => {
     assert.match(html, new RegExp(`aria-pressed="true"[^>]*>${ADJETIVOS[0]}<`))
     assert.match(html, new RegExp(`aria-pressed="true"[^>]*>${ANIMALES[0]}<`))
     assert.match(html, new RegExp(`>${ADJETIVOS[0]}${ANIMALES[0]}42<`))
+  })
+})
+
+describe('perfil pendiente: apodo y clase', () => {
+  const semana = () => semanaISO()
+  const registro = (extra = {}) => ({ semana: semana(), puntos: 3200, clase: null, nick: 'BraveFox12', ...extra })
+
+  test('con clase guardada el envío lleva ese código', async () => {
+    guardarClase('CLASE1')
+    await enviarPuntuacion('verb_pop', 1000)
+    assert.equal(envios()[0].args.p_class_code, 'CLASE1')
+  })
+
+  test('sin clase el envío lleva el código vacío', async () => {
+    await enviarPuntuacion('verb_pop', 1000)
+    assert.equal(envios()[0].args.p_class_code, '')
+  })
+
+  test('el reenvío lleva la clase guardada ahora y la mejor puntuación', async () => {
+    poner('enviado:verb_pop', registro())
+    guardarClase('CLASE1')
+    assert.deepEqual(await avisarCambioPerfil(), { reenviados: ['verb_pop'], pendientes: [] })
+    assert.equal(envios()[0].args.p_class_code, 'CLASE1')
+    assert.equal(envios()[0].args.p_score, 3200)
+    assert.equal(sacar('enviado:verb_pop').clase, 'CLASE1')
+  })
+
+  test('Remove: el reenvío lleva el código vacío', async () => {
+    guardarClase('CLASE1')
+    poner('enviado:verb_pop', registro({ clase: 'CLASE1' }))
+    guardarClase('')
+    await avisarCambioPerfil()
+    assert.equal(envios()[0].args.p_class_code, '')
+  })
+
+  test('cambiar solo la clase marca pendiente igual que cambiar el apodo', async () => {
+    poner('enviado:verb_pop', registro())
+    poner('perfilReenviado', null)
+    // Se gasta el reenvío del día con un cambio de clase...
+    guardarClase('CLASE1')
+    await avisarCambioPerfil()
+    // ...y el siguiente cambio, también solo de clase, queda pendiente sin llamar al servidor.
+    llamadas = []
+    guardarClase('')
+    assert.deepEqual(await avisarCambioPerfil(), { reenviados: [], pendientes: ['verb_pop'] })
+    assert.equal(llamadas.length, 0)
+    assert.equal(sacar('perfilPendiente:verb_pop'), true)
+
+    // La próxima partida envía aunque no mejore, con la clase de ahora, y no baja la mejor.
+    assert.deepEqual(await enviarPuntuacion('verb_pop', 500), { ok: true, enviada: false })
+    assert.equal(envios().length, 1)
+    assert.equal(envios()[0].args.p_class_code, '')
+    assert.equal(sacar('enviado:verb_pop').puntos, 3200)
+    assert.equal(sacar('perfilPendiente:verb_pop'), false)
+  })
+
+  test('el contador del día se comparte: apodo primero, clase después', async () => {
+    poner('enviado:verb_pop', registro())
+    poner('apodo', 'BraveFox12')
+    elegirApodo('Magic', 'Owl')
+    assert.deepEqual(await avisarCambioPerfil(), { reenviados: ['verb_pop'], pendientes: [] })
+    llamadas = []
+    guardarClase('CLASE1')
+    assert.deepEqual(await avisarCambioPerfil(), { reenviados: [], pendientes: ['verb_pop'] })
+    assert.equal(llamadas.length, 0)
+  })
+
+  test('el contador del día se comparte: clase primero, apodo después', async () => {
+    poner('enviado:verb_pop', registro())
+    guardarClase('CLASE1')
+    assert.deepEqual(await avisarCambioPerfil(), { reenviados: ['verb_pop'], pendientes: [] })
+    llamadas = []
+    elegirApodo('Magic', 'Owl')
+    assert.deepEqual(await avisarCambioPerfil(), { reenviados: [], pendientes: ['verb_pop'] })
+    assert.equal(llamadas.length, 0)
+  })
+
+  test('sin nada enviado esta semana, cambiar de clase no manda nada', async () => {
+    poner('enviado:verb_pop', registro({ semana: '2020-W01' }))
+    guardarClase('CLASE1')
+    assert.deepEqual(await avisarCambioPerfil(), { reenviados: [], pendientes: [] })
+    assert.equal(llamadas.length, 0)
+  })
+
+  test('clase distinta de la del último envío cuenta como pendiente aunque falte la marca', async () => {
+    poner('enviado:verb_pop', registro({ clase: 'CLASE1' }))
+    await enviarPuntuacion('verb_pop', 500)
+    assert.equal(envios().length, 1)
+    assert.equal(envios()[0].args.p_class_code, '')
+    assert.equal(sacar('enviado:verb_pop').puntos, 3200)
+  })
+})
+
+describe('fila propia con perfil pendiente', () => {
+  const semana = () => semanaISO()
+  const filas = [
+    { pos: 1, nick: 'TigerKing99', score: 5000 },
+    { pos: 2, nick: 'BraveFox12', score: 3200 },
+    { pos: 3, nick: 'BraveFox12', score: 1000 },
+  ]
+  const nicks = (estado) => estado.filas.map((f) => f.nick)
+
+  test('se pinta con el apodo nuevo la fila que coincide en apodo y puntos', async () => {
+    poner('enviado:verb_pop', { semana: semana(), puntos: 3200, clase: null, nick: 'BraveFox12' })
+    poner('perfilPendiente:verb_pop', true)
+    poner('apodo', 'MagicOwl12')
+    responder = () => new Response(JSON.stringify(filas), { status: 200 })
+    const estado = await cargarVista('verb_pop', VISTA.TODOS, null)
+    assert.deepEqual(nicks(estado), ['TigerKing99', 'MagicOwl12', 'BraveFox12'])
+    const html = renderToStaticMarkup(createElement(CuerpoRanking, { estado, miApodo: 'MagicOwl12', alReintentar: () => {} }))
+    assert.equal(html.match(/fila-ranking--mia/g).length, 1)
+    assert.match(html, /fila-ranking--mia[^>]*>.*?MagicOwl12/)
+  })
+
+  test('sin pendiente la lista sale tal cual la da el servidor', async () => {
+    poner('enviado:verb_pop', { semana: semana(), puntos: 3200, clase: null, nick: 'BraveFox12' })
+    poner('apodo', 'MagicOwl12')
+    responder = () => new Response(JSON.stringify(filas), { status: 200 })
+    const estado = await cargarVista('verb_pop', VISTA.TODOS, null)
+    assert.deepEqual(nicks(estado), ['TigerKing99', 'BraveFox12', 'BraveFox12'])
+  })
+
+  test('aEstado sin datos de pendiente no toca nada', () => {
+    const estado = aEstado({ ok: true, filas: [{ posicion: 1, nick: 'BraveFox12', puntos: 3200 }] })
+    assert.deepEqual(nicks(estado), ['BraveFox12'])
   })
 })

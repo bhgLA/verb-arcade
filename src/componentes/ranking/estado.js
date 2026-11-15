@@ -1,5 +1,6 @@
 // Estados de la pantalla de ranking, sin React, para poder probarlos en node.
-import { leerRanking } from '../../datos/ranking.js'
+import { leerRanking, filaPropiaPendiente } from '../../datos/ranking.js'
+import { leerApodo } from '../../datos/apodo.js'
 
 export const TOP = 20
 
@@ -15,9 +16,22 @@ export function filasVisibles(filas) {
     .map(({ posicion, nick, puntos }) => ({ posicion, nick, puntos }))
 }
 
-export function aEstado(resultado) {
+// Con perfil pendiente, el servidor aún tiene el apodo viejo: la fila que coincide
+// con lo último enviado (apodo y puntos) se pinta con el apodo actual, y así sale
+// resaltada. pendiente: { nick, puntos } o null.
+export function conFilaPropia(filas, pendiente, apodo) {
+  if (!pendiente || !apodo) return filas
+  let hecha = false
+  return filas.map((f) => {
+    if (hecha || f.nick !== pendiente.nick || f.puntos !== pendiente.puntos) return f
+    hecha = true
+    return { ...f, nick: apodo }
+  })
+}
+
+export function aEstado(resultado, pendiente = null, apodo = null) {
   if (!resultado?.ok) return { fase: 'error', motivo: resultado?.motivo ?? 'desconocido' }
-  const filas = filasVisibles(resultado.filas)
+  const filas = conFilaPropia(filasVisibles(resultado.filas), pendiente, apodo)
   return filas.length > 0 ? { fase: 'lista', filas } : { fase: 'vacio' }
 }
 
@@ -25,5 +39,5 @@ export function aEstado(resultado) {
 export async function cargarVista(juego, vista, clase) {
   if (vista === VISTA.CLASE && !clase) return { fase: 'sinClase' }
   const r = await leerRanking(juego, { clase: vista === VISTA.CLASE ? clase : null, limite: TOP })
-  return aEstado(r)
+  return aEstado(r, filaPropiaPendiente(juego), leerApodo())
 }
