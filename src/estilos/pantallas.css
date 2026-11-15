@@ -525,8 +525,53 @@
 
 /* Menos aire abajo y filas de 40 px: así el top 20 entra entero en 768 px de alto. */
 .ranking .pantalla__contenido { padding-bottom: 24px; gap: 20px; }
-.ranking__apodo { font-size: 20px; color: var(--blanco); }
+.ranking__apodo { display: flex; align-items: center; gap: 14px; font-size: 20px; color: var(--blanco); }
 .ranking__apodo strong { font-weight: 800; }
+.ranking__cambiar {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 2px solid var(--blanco);
+  border-radius: 22px;
+  background: transparent;
+  color: var(--blanco);
+  font: inherit;
+  font-size: 18px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.ranking__cambiar:focus-visible { outline: 3px solid var(--blanco); outline-offset: 3px; }
+
+/* Selector de apodo: 12 + 12 piezas en 6 columnas; cabe en la tarjeta a 1366×768. */
+.selector-apodo { display: grid; gap: 14px; }
+.selector-apodo__vista {
+  font-family: var(--fuente-titulo);
+  font-weight: 800;
+  font-size: 36px;
+  line-height: 1.1;
+  color: var(--tinta);
+}
+.selector-apodo__grupo { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.selector-apodo__pieza {
+  min-height: 52px;
+  padding: 0 8px;
+  border: 2px solid var(--tinta);
+  border-radius: 26px;
+  background: var(--blanco);
+  color: var(--tinta);
+  font: inherit;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Elegida: color y además borde grueso con marca, para no depender solo del color. */
+.selector-apodo__pieza--elegida { background: var(--acento); border-width: 4px; }
+.selector-apodo__pieza--elegida::before { content: '✓ '; }
+.selector-apodo__pieza:focus-visible { outline: 3px solid var(--tinta); outline-offset: 3px; }
+.selector-apodo__acciones { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 .ranking__cabecera {
   width: 100%;
   display: flex;
@@ -650,6 +695,8 @@
   .fila-ranking__puesto { width: 40px; height: 40px; border-radius: 20px; font-size: 22px; }
   .lista-ranking__columna { gap: 5px; }
   .ranking__linea { font-size: 26px; }
+  .selector-apodo__vista { font-size: 44px; }
+  .selector-apodo__pieza { min-height: 64px; font-size: 26px; border-radius: 32px; }
 }
 
 @media (max-width: 560px) {
@@ -657,6 +704,8 @@
   .pestanas__boton { flex: 1; padding: 0 12px; font-size: 22px; }
   .ranking__tarjeta { padding: 16px 14px 18px; }
   .fila-ranking { gap: 10px; font-size: 20px; padding-right: 10px; }
+  .selector-apodo__grupo { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .selector-apodo__vista { font-size: 28px; }
 }
 
 /* --- Verb Pop: lienzo de 1366×768 escalado --------------------------------- */
