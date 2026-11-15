@@ -26,10 +26,14 @@ export function Barra({ valor, total, className = '' }) {
   )
 }
 
-// Top 3 del ranking semanal. filas: [{ posicion, nick, puntos }].
-// Sin datos (todavía no hay Supabase) enseña el estado vacío en el mismo hueco.
-export function TopRanking({ filas = [] }) {
-  if (filas.length === 0) return <span className="ficha-inicio__vacio">{textos.inicio.ranking.vacio}</span>
+// Cabeza del ranking semanal. filas: [{ posicion, nick, puntos }].
+// Sin filas enseña una línea neutra en el mismo hueco (vacio: true si no hay puntuaciones,
+// false si no se ha podido cargar o todavía está cargando).
+export function TopRanking({ filas = [], vacio = false }) {
+  if (filas.length === 0) {
+    const p = textos.ranking.portada
+    return <span className="ficha-inicio__vacio">{vacio ? p.vacio : p.sinConexion}</span>
+  }
   return filas.slice(0, 3).map((f) => (
     <span key={f.posicion} className="ficha-inicio__fila">
       <span className={`ficha-inicio__puesto ${f.posicion === 1 ? 'ficha-inicio__puesto--primero' : ''}`}>

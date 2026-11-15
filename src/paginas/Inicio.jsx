@@ -1,6 +1,6 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { textos } from '../textos.js'
-import { verbos, verbosDelMundo, leerProgreso, leerRecord } from '../datos/index.js'
+import { verbos, verbosDelMundo, leerProgreso, leerRecord, leerRanking } from '../datos/index.js'
 import { progresoDe, contarDesbloqueadas } from '../motor/estudio.js'
 import { semanaISO, numeroDeSemana, mundoDeLaSemana, diasHastaElLunes } from '../motor/semana.js'
 import Escenario from '../componentes/Escenario.jsx'
@@ -46,8 +46,20 @@ function FondoInicio() {
   )
 }
 
-// Todavía no hay ranking (llega con Supabase, paso 5).
-const TOP_RANKING = []
+// Líder de la semana en Verb Pop. Si no carga, la ficha enseña una línea neutra.
+function useLider() {
+  const [lider, setLider] = useState({ filas: [], vacio: false })
+  useEffect(() => {
+    let vivo = true
+    leerRanking('verb_pop', { limite: 1 }).then((r) => {
+      if (vivo && r.ok) setLider({ filas: r.filas.slice(0, 1), vacio: r.filas.length === 0 })
+    })
+    return () => {
+      vivo = false
+    }
+  }, [])
+  return lider
+}
 
 export default function Inicio() {
   const datos = useMemo(() => {
@@ -66,6 +78,7 @@ export default function Inicio() {
       record: leerRecord('verb_pop'),
     }
   }, [])
+  const lider = useLider()
 
   return (
     <Escenario mundo={MUNDO_INICIO} className="escenario--a-sangre" fondo={<FondoInicio />}>
@@ -121,8 +134,8 @@ export default function Inicio() {
             <Barra valor={datos.cartas} total={verbos.length} className="ficha-inicio__barra--cartas" />
           </FichaMenu>
 
-          <FichaMenu a="/ranking" icono="podio" titulo={textos.nav.ranking}>
-            <TopRanking filas={TOP_RANKING} />
+          <FichaMenu a="/ranking" icono="podio" titulo={textos.nav.ranking} subtitulo={textos.ranking.portada.subtitulo}>
+            <TopRanking filas={lider.filas} vacio={lider.vacio} />
           </FichaMenu>
         </nav>
       </main>
