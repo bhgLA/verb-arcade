@@ -79,8 +79,8 @@ describe('puntuación', () => {
   })
 
   test('schema.sql usa el mismo límite para verb_pop', () => {
-    const sql = readFileSync(new URL('../schema.sql', import.meta.url), 'utf8')
-    const m = /\('verb_pop',\s*(\d+)\)/.exec(sql)
+    const sql = readFileSync(new URL('../supabase/schema.sql', import.meta.url), 'utf8')
+    const m = /\('verb_pop',\s*(\d+)\s*[,)]/.exec(sql)
     assert.ok(m, 'no encuentro verb_pop en game_limits')
     assert.equal(Number(m[1]), limiteServidor())
   })

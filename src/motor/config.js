@@ -2,7 +2,7 @@
 
 export const ZONA_HORARIA = 'Europe/Madrid'
 
-// Nombres de juego: coinciden con game_limits.game en schema.sql.
+// Nombres de juego: coinciden con game_limits.game en supabase/schema.sql.
 export const JUEGOS = ['verb_pop', 'mimica']
 
 // Tipos de pregunta que entran en la secuencia de competición de cada juego.

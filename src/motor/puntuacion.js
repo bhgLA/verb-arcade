@@ -40,7 +40,7 @@ export function maximoTeorico(cfg = VERB_POP) {
   return puntos
 }
 
-// Valor para game_limits.max_score en schema.sql.
+// Valor para game_limits.max_score en supabase/schema.sql.
 export function limiteServidor(cfg = VERB_POP) {
   // Redondeo previo: 14850 * 1.1 da 16335.000000000002 en coma flotante.
   const conMargen = Math.round(maximoTeorico(cfg) * (1 + cfg.margenServidor) * 1e6) / 1e6

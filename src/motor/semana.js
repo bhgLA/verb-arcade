@@ -1,4 +1,4 @@
-// Semana ISO en hora de Madrid, igual que current_week() en schema.sql
+// Semana ISO en hora de Madrid, igual que current_week() en supabase/schema.sql
 // (to_char(now() at time zone 'Europe/Madrid', 'IYYY-"W"IW')).
 import { ZONA_HORARIA, JUEGOS, MINIMO_POOL } from './config.js'
 
