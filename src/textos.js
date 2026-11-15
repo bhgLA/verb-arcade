@@ -69,6 +69,12 @@ export const textos = {
     miClase: 'My class',
     vistas: 'Ranking view',
     tuApodo: 'Your nick',
+    // Selector de apodo: dos filas de piezas cerradas, sin texto libre.
+    cambiarApodo: 'Change',
+    elegirApodo: 'Choose your nick',
+    adjetivo: 'Word',
+    animal: 'Animal',
+    cancelar: 'Cancel',
     cargando: 'Loading…',
     vacio: 'No scores yet this week',
     sinConexion: 'El ranking no está disponible ahora.',
