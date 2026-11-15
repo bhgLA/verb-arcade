@@ -140,7 +140,7 @@ export const textos = {
     puntos: 'Points',
     aciertos: 'Correct',
     mejorCombo: 'Best combo',
-    seguidos: (n) => `${n} seguidos`,
+    seguidos: (n) => (n === 1 ? '1 acierto' : `${n} aciertos seguidos`),
     record: 'Best',
     nuevoRecord: 'New record!',
     otraVez: 'Play again',
