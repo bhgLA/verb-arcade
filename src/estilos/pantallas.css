@@ -765,7 +765,43 @@
   transform: translate(-50%, -50%) scale(var(--escala, 1));
   font-family: var(--fuente-texto);
 }
-.escenario__lienzo .olas.vp__olas { height: 150px; }
+/* Fondo a sangre (fuera del lienzo), con las medidas del lienzo × --escala.
+   Las formas no se recortan en el borde del lienzo, solo en el de la ventana. */
+.vp-fondo { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.vp-fondo__formas {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1366px;
+  height: 768px;
+  transform: translate(-50%, -50%) scale(var(--escala, 1));
+}
+.vp-fondo__formas .fondo-mundo { overflow: visible; }
+/* Arena: las olas de <Olas> (150 px de alto al pie del lienzo, periodo 341.5 px)
+   repetidas a todo el ancho. Capa de arriba #EFD6A0 (--arena-2), debajo #F7E7C2 (--arena). */
+.vp-fondo__olas {
+  --periodo: calc(341.5px * var(--escala, 1));
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: calc(150px * var(--escala, 1));
+  top: calc(50% + 234px * var(--escala, 1));
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 341.5 150' preserveAspectRatio='none'%3E%3Cpath fill='%23EFD6A0' d='M0 78Q85.375 40 170.75 78T341.5 78V150H0Z'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 341.5 150' preserveAspectRatio='none'%3E%3Cpath fill='%23F7E7C2' d='M0 40Q85.375 0 170.75 40T341.5 40V150H0Z'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-size: var(--periodo) 100%;
+  background-position: calc(50% + var(--periodo) / 2) 0;
+}
+/* Lo que sobra bajo el lienzo (ventanas más altas que 16:9); 1 px de solape. */
+.vp-fondo__arena {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: calc(50% + 384px * var(--escala, 1) - 1px);
+  background: var(--arena-2);
+}
 
 .vp { position: relative; height: 100%; display: flex; flex-direction: column; }
 

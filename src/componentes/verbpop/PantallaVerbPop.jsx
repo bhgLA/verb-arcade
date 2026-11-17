@@ -2,7 +2,7 @@
 // Solo pinta: recibe datos ya calculados (de la partida o de ejemplo) y no decide nada.
 import { textos } from '../../textos.js'
 import Escenario from '../Escenario.jsx'
-import { Formas, Olas } from '../FondoMundo.jsx'
+import { Formas } from '../FondoMundo.jsx'
 import BotonRedondo from '../BotonRedondo.jsx'
 import Tesela from '../Tesela.jsx'
 import { Chip, Medidor, Vidas, InsigniaCombo } from '../Piezas.jsx'
@@ -17,6 +17,20 @@ export const ESCALONES = [0, 46, 18, 32]
 export function desplazamiento(indice, altura) {
   const a = Math.max(0, Math.min(1, altura))
   return (ESCALONES[indice] ?? 0) * (1 - a) + a * CAIDA_PX
+}
+
+// Fondo a sangre, como en la portada: formas en coordenadas del lienzo (sin
+// recortar en sus bordes), arena repetida a todo el ancho y debajo del lienzo.
+function FondoVerbPop() {
+  return (
+    <div className="vp-fondo" aria-hidden="true">
+      <div className="vp-fondo__formas">
+        <Formas />
+      </div>
+      <div className="vp-fondo__olas" />
+      <div className="vp-fondo__arena" />
+    </div>
+  )
 }
 
 export default function PantallaVerbPop({
@@ -43,9 +57,7 @@ export default function PantallaVerbPop({
 }) {
   const conPanel = panel !== null
   return (
-    <Escenario mundo={mundo}>
-      <Formas />
-      <Olas className="vp__olas" />
+    <Escenario mundo={mundo} className="escenario--a-sangre" fondo={<FondoVerbPop />}>
       <div className="vp">
         <header className="vp__cabecera">
           <div className="vp__grupo">
