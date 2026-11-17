@@ -7,9 +7,10 @@ import { createElement as h, Fragment, useEffect, useRef } from 'react'
 import { textos } from '../../textos.js'
 import { FASE } from '../../motor/partida.js'
 
-// Motivos en los que tiene sentido volver a enviar la misma partida. Con 'apodo'
-// el juego ya ha cambiado el apodo, así que el reintento sale con el nuevo.
-export const REINTENTABLES = ['muyRapido', 'sinConexion', 'apodo', 'desconocido']
+// "Try again" solo cuando reintentar puede funcionar: sin conexión, too fast y un
+// error inesperado. Con invalid nick, invalid class code, unknown class, invalid
+// score, invalid player, unknown game o daily limit queda solo el mensaje.
+export const REINTENTABLES = ['sinConexion', 'muyRapido', 'desconocido']
 
 const EnlaceSimple = ({ a, children, ...resto }) => h('a', { href: a, ...resto }, children)
 

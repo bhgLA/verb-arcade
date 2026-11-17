@@ -19,6 +19,9 @@ import {
 } from '../src/datos/apodo.js'
 import { leerMejorSemana, guardarMejorSemana, registrarPartidaSemana } from '../src/datos/record.js'
 import { pideApodo } from '../src/guarda.js'
+import { motivoDeError, MOTIVOS } from '../src/datos/errores.js'
+import { REINTENTABLES } from '../src/componentes/verbpop/CuerpoResultado.js'
+import { lineaMejorSemana } from '../src/componentes/verbpop/introReto.js'
 import { CuerpoResultado } from '../src/componentes/verbpop/CuerpoResultado.js'
 import { SelectorApodo } from '../src/componentes/ranking/SelectorApodo.js'
 import { FASE } from '../src/motor/partida.js'
@@ -200,6 +203,67 @@ describe('pantalla de fin de Challenge', () => {
     assert.ok(html.includes(textos.ranking.errores.sinConexion))
     assert.match(html, new RegExp(`>${textos.ranking.reintentar}</button>`))
     assert.doesNotMatch(pintar({ estado: 'error', motivo: 'limiteDiario' }), new RegExp(textos.ranking.reintentar))
+  })
+})
+
+describe('Try again en el fin de Challenge', () => {
+  const pintar = (motivo) =>
+    renderToStaticMarkup(
+      createElement(CuerpoResultado, {
+        resultado: { fase: FASE.FIN_TIEMPO, puntos: 100, mejorSemana: 100, nuevoRecord: false, aciertos: 1, mejorCombo: 1 },
+        envio: { estado: 'error', motivo },
+        alReintentar: () => {},
+        alRepetir: () => {},
+      }),
+    )
+  const conBoton = (motivo) => pintar(motivo).includes(`>${textos.ranking.reintentar}</button>`)
+  // Lo que llega del servidor o de la red, tal cual, hasta la pantalla.
+  const desde = (r) => motivoDeError(r)
+
+  test('sale sin conexión, con too fast y con un error inesperado', () => {
+    for (const r of [
+      { motivo: 'sin-conexion' },
+      { motivo: 'sin-config' },
+      { motivo: 'http-503' },
+      { motivo: 'http-400', mensaje: 'too fast' },
+      { motivo: 'http-400', mensaje: 'algo que no esperamos' },
+      { motivo: 'http-401', mensaje: '' },
+    ]) assert.ok(conBoton(desde(r)), JSON.stringify(r))
+  })
+
+  test('no sale con los errores en los que reintentar no sirve; queda el mensaje', () => {
+    for (const mensaje of ['invalid nick', 'invalid class code', 'unknown class', 'invalid score', 'invalid player', 'unknown game', 'daily limit']) {
+      const motivo = desde({ motivo: 'http-400', mensaje })
+      assert.ok(!conBoton(motivo), mensaje)
+      assert.ok(pintar(motivo).includes(textos.ranking.errores[motivo]), mensaje)
+    }
+  })
+
+  test('cada motivo conocido está clasificado: solo tres reintentables', () => {
+    assert.deepEqual([...REINTENTABLES].sort(), ['desconocido', 'muyRapido', 'sinConexion'])
+    for (const m of MOTIVOS) assert.equal(conBoton(m), REINTENTABLES.includes(m), m)
+  })
+})
+
+describe('intro de Verb Pop', () => {
+  test('sin partidas esta semana no hay línea de mejor semanal', () => {
+    assert.equal(lineaMejorSemana('verb_pop', '2026-W47'), null)
+  })
+
+  test('muestra la mejor de la semana con el mismo texto que la pantalla final', () => {
+    registrarPartidaSemana('verb_pop', '2026-W47', 2450)
+    assert.equal(lineaMejorSemana('verb_pop', '2026-W47'), v.mejorSemanaN(textos.numero(2450)))
+    assert.equal(lineaMejorSemana('verb_pop', '2026-W47'), 'Your best this week: 2,450')
+  })
+
+  test('con una partida de 0 puntos tampoco hay línea', () => {
+    registrarPartidaSemana('verb_pop', '2026-W47', 0)
+    assert.equal(lineaMejorSemana('verb_pop', '2026-W47'), null)
+  })
+
+  test('si la semana cambia, lo de la anterior no se muestra', () => {
+    registrarPartidaSemana('verb_pop', '2026-W46', 3000)
+    assert.equal(lineaMejorSemana('verb_pop', '2026-W47'), null)
   })
 })
 
