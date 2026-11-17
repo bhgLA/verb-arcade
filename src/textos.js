@@ -102,7 +102,7 @@ export const textos = {
       jugador: 'No hemos podido guardar la partida en el ranking. Tu récord sigue guardado aquí.',
       juego: 'Este juego todavía no tiene ranking. Tu récord sigue guardado aquí.',
       puntuacion: 'Esta puntuación no ha entrado en el ranking. Tu récord sigue guardado aquí.',
-      apodo: 'Tu apodo no ha funcionado. Te hemos dado otro: vuelve a intentarlo.',
+      apodo: 'Tu apodo no ha funcionado. Te hemos dado otro para la próxima partida.',
       codigoClase: 'El código de clase tiene de 2 a 8 letras o números. Revísalo.',
       claseDesconocida: 'No encontramos esa clase. Pregunta el código a tu profe.',
       limiteDiario: 'Por hoy ya has enviado todas tus partidas. Mañana puedes volver a subir.',
