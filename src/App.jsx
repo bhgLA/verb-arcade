@@ -9,6 +9,12 @@ import RetoVerbPop from './paginas/RetoVerbPop.jsx'
 import Reto from './paginas/Reto.jsx'
 import Cartas from './paginas/Cartas.jsx'
 import Ranking from './paginas/Ranking.jsx'
+import GuardaApodo from './componentes/GuardaApodo.jsx'
+
+// Juegos de Challenge: todos pasan por la guarda del apodo en el primer uso.
+const JUEGOS_RETO = {
+  '/reto/verb-pop': { Pagina: RetoVerbPop, titulo: textos.verbPop.titulo },
+}
 
 const PAGINAS = {
   '/': Inicio,
@@ -34,7 +40,8 @@ export default function App() {
   if (mundo >= 1 && mundo <= 10) {
     return sesion[2] ? <EstudioVerbPop key={`pop-${mundo}`} mundo={mundo} /> : <SesionEstudio key={mundo} mundo={mundo} />
   }
-  if (ruta === '/reto/verb-pop') return <RetoVerbPop />
+  const juego = JUEGOS_RETO[ruta]
+  if (juego) return <GuardaApodo key={ruta} ruta={ruta} {...juego} />
   const Pagina = PAGINAS[ruta] ?? NoEncontrada
   return <Pagina />
 }

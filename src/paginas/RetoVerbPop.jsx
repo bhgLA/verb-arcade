@@ -4,15 +4,11 @@ import {
   verbos,
   guardarRecordSiMejor,
   leerRecord,
-  guardarMejorSemana,
+  registrarPartidaSemana,
   enviarPuntuacion,
   supabaseConfigurado,
   leerApodo,
   leerClase,
-  elegirApodo,
-  apodoElegido,
-  apodoParaElegir,
-  avisarCambioPerfil,
 } from '../datos/index.js'
 import { semanaISO, mundoDeLaSemana } from '../motor/semana.js'
 import { secuenciaSemanal } from '../motor/secuencia.js'
@@ -25,7 +21,6 @@ import { useReloj } from '../componentes/verbpop/useReloj.js'
 import { useTeclado } from '../componentes/verbpop/useTeclado.js'
 import { estadosDeBloques } from '../componentes/verbpop/estados.js'
 import { CuerpoResultado } from '../componentes/verbpop/CuerpoResultado.js'
-import { SelectorApodo } from '../componentes/ranking/SelectorApodo.js'
 import { Enlace } from '../rutas.jsx'
 
 const JUEGO = 'verb_pop'
@@ -87,42 +82,23 @@ function Partida({ preguntas, mundo, alTerminar }) {
   )
 }
 
+// Sin el botón redondo de volver: Home y Ranking ya están abajo, con texto.
 function Resultado({ mundo, ...props }) {
   return (
-    <PantallaMundo mundo={mundo} olas className="resultado-final resumen">
-      <BarraSuperior atras="/reto" izquierda={<Chip mundo={mundo} />} />
+    <PantallaMundo mundo={mundo} olas className="resultado-final resumen resultado-reto">
+      <BarraSuperior atras={null} izquierda={<Chip mundo={mundo} />} />
       <CuerpoResultado {...props} Enlace={Enlace} />
     </PantallaMundo>
   )
 }
 
-// Primer Challenge sin apodo elegido: el selector, con el apodo generado
-// preseleccionado, y "Start" guarda el apodo y empieza. Solo una vez.
-function PrimerApodo({ mundo, alEmpezar }) {
-  const [propuesto] = useState(() => apodoParaElegir())
-  const alGuardar = (adjetivo, animal) => {
-    const antes = leerApodo()
-    const nuevo = elegirApodo(adjetivo, animal)
-    // Si ya había enviado algo esta semana con el apodo generado, se aplica el perfil pendiente.
-    if (nuevo && nuevo !== antes) avisarCambioPerfil()
-    alEmpezar()
-  }
-  return (
-    <PantallaMundo mundo={mundo} olas className="intro-juego primer-apodo">
-      <BarraSuperior atras="/reto" izquierda={<Chip mundo={mundo} />} />
-      <h1 className="titulo-grande">{textos.verbPop.titulo}</h1>
-      <section className="tarjeta primer-apodo__tarjeta">
-        <SelectorApodo apodo={propuesto} alGuardar={alGuardar} accion={textos.verbPop.empezar} />
-      </section>
-    </PantallaMundo>
-  )
-}
-
-export default function RetoVerbPop() {
+// El selector de apodo del primer uso lo pone GuardaApodo (App.jsx); al pulsar
+// "Start" llega empezarYa y la partida empieza sin pasar por la intro.
+export default function RetoVerbPop({ empezarYa = false }) {
   const semana = useMemo(() => semanaISO(), [])
   const mundo = mundoDeLaSemana(semana)
   const preguntas = useMemo(() => secuenciaSemanal(verbos, JUEGO, semana), [semana])
-  const [fase, setFase] = useState('intro')
+  const [fase, setFase] = useState(empezarYa ? 'juego' : 'intro')
   const [partida, setPartida] = useState(0)
   const [resultado, setResultado] = useState(null)
   const [envio, setEnvio] = useState(null)
@@ -143,16 +119,21 @@ export default function RetoVerbPop() {
   const alTerminar = useCallback((s) => {
     // El récord de siempre se sigue guardando: lo usan la intro y el menú de Challenge.
     guardarRecordSiMejor(JUEGO, s.puntos)
-    const mejorSemana = guardarMejorSemana(JUEGO, semana, s.puntos)
-    setResultado({ fase: s.fase, puntos: s.puntos, mejorSemana })
+    // "New record!" se decide antes de actualizar la mejor de la semana.
+    const { mejorSemana, nuevoRecord } = registrarPartidaSemana(JUEGO, semana, s.puntos)
+    setResultado({
+      fase: s.fase,
+      puntos: s.puntos,
+      mejorSemana,
+      nuevoRecord,
+      aciertos: s.aciertos,
+      mejorCombo: s.mejorCombo,
+    })
     setFase('resultado')
     enviar(s.puntos)
   }, [enviar, semana])
 
-  const [conApodo, setConApodo] = useState(() => apodoElegido())
-
   const empezar = () => {
-    setConApodo(true)
     ultimoEnvio.current++
     setEnvio(null)
     setPartida((n) => n + 1)
@@ -171,8 +152,6 @@ export default function RetoVerbPop() {
       />
     )
   }
-
-  if (!conApodo) return <PrimerApodo mundo={mundo} alEmpezar={empezar} />
 
   const record = leerRecord(JUEGO)
   return (

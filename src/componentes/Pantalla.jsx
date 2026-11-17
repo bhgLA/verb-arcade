@@ -24,11 +24,12 @@ export function PantallaNeutra({ className = '', children }) {
 }
 
 // Barra superior: volver, lo que vaya a la izquierda (chip) y lo que vaya a la derecha.
+// atras = null quita el botón de volver (fin de Challenge, que ya tiene Home).
 export function BarraSuperior({ atras = '/', neutro = false, izquierda = null, derecha = null }) {
   return (
     <header className="barra-superior">
       <div className="barra-superior__lado">
-        <BotonRedondo icono="volver" etiqueta={textos.botones.volver} a={atras} neutro={neutro} />
+        {atras !== null && <BotonRedondo icono="volver" etiqueta={textos.botones.volver} a={atras} neutro={neutro} />}
         {izquierda}
       </div>
       <div className="barra-superior__lado barra-superior__lado--derecha">{derecha}</div>
