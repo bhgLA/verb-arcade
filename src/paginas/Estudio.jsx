@@ -12,9 +12,15 @@ export default function Estudio() {
   const progreso = useMemo(() => leerProgreso(), [])
   return (
     <PantallaNeutra className="lista-mundos">
-      <BarraSuperior neutro />
-      <h1 className="titulo-neutro">{textos.nav.estudio}</h1>
-      <p className="texto-neutro">{textos.estudio.elegirMundo}</p>
+      <BarraSuperior
+        neutro
+        izquierda={
+          <div className="lista-mundos__cabecera">
+            <h1 className="titulo-neutro">{textos.nav.estudio}</h1>
+            <p className="texto-neutro">{textos.estudio.elegirMundo}</p>
+          </div>
+        }
+      />
       <ul className="lista-mundos__rejilla">
         {MUNDOS.map((n) => {
           const delMundo = verbos.filter((v) => v.world === n)

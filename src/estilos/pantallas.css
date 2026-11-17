@@ -260,10 +260,13 @@
 
 /* --- /estudio: rejilla de mundos ------------------------------------------- */
 
-/* Cabecera y márgenes: los de las pantallas neutras (BarraSuperior, .titulo-neutro).
-   Rejilla de 5×2 con fichas altas; lo que sobre de alto queda debajo. */
+/* Sin scroll desde 650 px de alto (1366×768 con el navegador): título y texto van
+   dentro de la barra (48 + 28 = 76 px de 80). Lo que no es rejilla suma 168 px:
+   24 arriba + 80 de barra + 16 de hueco + 24 de hueco entre filas + 24 abajo. */
+.lista-mundos .pantalla__contenido { gap: 16px; padding-bottom: 24px; }
+.lista-mundos .titulo-neutro { font-size: 48px; }
 .lista-mundos__rejilla {
-  --alto-ficha: clamp(290px, calc((100dvh - 200px) / 2), 335px);
+  --alto-ficha: clamp(240px, calc((100dvh - 168px) / 2), 335px);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -295,6 +298,10 @@
   line-height: 0.9;
   letter-spacing: -0.04em;
   color: var(--blanco);
+}
+/* Por debajo de 742 px la ficha mide menos de 240 + 47 (el número a 52 px): fuera el número. */
+@media (max-height: 742px) {
+  .tarjeta-mundo__numero { display: none; }
 }
 .tarjeta-mundo__nombre { margin-top: 6px; font-size: 22px; font-weight: 700; line-height: 1.2; color: var(--blanco); }
 .tarjeta-mundo__cartas { margin-top: 10px; font-size: 18px; line-height: 1.2; color: var(--blanco); }
