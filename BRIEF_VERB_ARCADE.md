@@ -9,7 +9,7 @@ Dispositivos: portátil de cada niño y pizarra táctil (1366×768 a 1920). Toca
 - `src/contenido/verbos.json`: 100 verbos. Estructura en el propio fichero (`verbs[]` con `verb, es, past, participle, irregular, category, cambridge_level, freq_rank_top100, world, mimica, emoji`).
 - No cambiar la lista, ni formas verbales, ni traducciones sin preguntar a Bego. Si crees que hay un error, anótalo en `NOTAS_VERBOS.md` y sigue.
 - `world` (1-10) agrupa de 10 en 10 por orden de aprendizaje.
-- `be` y `let` van los primeros a propósito (son lo primero que aprenden). `be` tiene `past: "was / were"`: mostrarlo tal cual y tratarlo como UNA sola opción en el reto "past of X"; no se puede mimar (`mimica: false`) ni tiene emoji.
+- `be` y `have` van los primeros a propósito (son lo primero que aprenden). `be` tiene `past: "was / were"`: mostrarlo tal cual y tratarlo como UNA sola opción en el reto "past of X"; no se puede mimar (`mimica: false`) ni tiene emoji.
 - `mimica: false` = no se puede dibujar o actuar con claridad: ese verbo solo sale en Verb Pop, nunca en Mímica.
 - `emoji` es provisional (relleno hasta tener sprites pixel). Mostrarlo dentro de un marco pixel tipo cartucho.
 - Crear `npm run validar`: 100 verbos únicos, campos obligatorios, `past` y `participle` no vacíos, `world` 1-10 con 10 verbos cada uno, cada `mimica: true` con `emoji`.

@@ -3,7 +3,7 @@
   "vocabulary": "Cambridge English, Pre A1 Starters, A1 Movers and A2 Flyers wordlists (exams from 2018), https://www.cambridgeenglish.org/Images/351850-a1-movers-word-list-2018.pdf and https://www.cambridgeenglish.org/pl/Images/149681-yle-flyers-word-list.pdf",
   "frequency": "Grammar Monster 'most common verbs in English' (ranking order only; the page names no corpus), https://www.grammar-monster.com/most-common-verbs-in-English.htm",
   "selection": "74 verbs present in both the Cambridge YLE lists and the Grammar Monster top 100 (excluding 'mean'), plus 26 high-use, easy-to-act verbs from Cambridge Starters/Movers chosen by hand. Spanish glosses, past forms, categories, emoji and mimica flags are authored, not taken from either source.",
-  "notes": "Past forms use 'got' (not 'gotten') and 'learned' (not 'learnt'). 'read' past is pronounced /red/. 'be' keeps both past forms in one string ('was / were'). 'be' and 'let' are placed first on purpose. Excluded: modals, phrasal verbs and multiword entries."
+  "notes": "Past forms use 'got' (not 'gotten') and 'learned' (not 'learnt'). 'read' past is pronounced /red/. 'be' keeps both past forms in one string ('was / were'). 'be' and 'have' are placed first on purpose. Excluded: modals, phrasal verbs and multiword entries."
  },
  "verbs": [
   {
@@ -22,14 +22,14 @@
   },
   {
    "id": 2,
-   "verb": "let",
-   "es": "dejar, permitir",
-   "past": "let",
-   "participle": "let",
+   "verb": "have",
+   "es": "tener",
+   "past": "had",
+   "participle": "had",
    "irregular": true,
-   "category": "comunicacion",
-   "cambridge_level": "flyers",
-   "freq_rank_top100": 30,
+   "category": "basico",
+   "cambridge_level": "starters",
+   "freq_rank_top100": 2,
    "world": 1,
    "mimica": false,
    "emoji": null
@@ -708,14 +708,14 @@
   },
   {
    "id": 51,
-   "verb": "have",
-   "es": "tener",
-   "past": "had",
-   "participle": "had",
+   "verb": "let",
+   "es": "dejar, permitir",
+   "past": "let",
+   "participle": "let",
    "irregular": true,
-   "category": "basico",
-   "cambridge_level": "starters",
-   "freq_rank_top100": 2,
+   "category": "comunicacion",
+   "cambridge_level": "flyers",
+   "freq_rank_top100": 30,
    "world": 6,
    "mimica": false,
    "emoji": null
