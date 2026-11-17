@@ -1,4 +1,5 @@
-// Challenge: apodo elegido en el primer uso y pantalla de fin de partida.
+// Challenge: apodo elegido en el primer uso, guarda de /reto/<juego>, récord
+// semanal y pantalla de fin de partida.
 // localStorage simulado; no hay llamadas al servidor.
 import { test, describe, beforeEach, after } from 'node:test'
 import assert from 'node:assert/strict'
@@ -16,7 +17,8 @@ import {
   piezasDelApodo,
   componerApodo,
 } from '../src/datos/apodo.js'
-import { leerMejorSemana, guardarMejorSemana } from '../src/datos/record.js'
+import { leerMejorSemana, guardarMejorSemana, registrarPartidaSemana } from '../src/datos/record.js'
+import { pideApodo } from '../src/guarda.js'
 import { CuerpoResultado } from '../src/componentes/verbpop/CuerpoResultado.js'
 import { SelectorApodo } from '../src/componentes/ranking/SelectorApodo.js'
 import { FASE } from '../src/motor/partida.js'
@@ -83,6 +85,29 @@ describe('apodo elegido o generado', () => {
   })
 })
 
+describe('guarda del primer uso', () => {
+  test('cualquier juego bajo /reto/<juego> pide el apodo si no está elegido', () => {
+    for (const ruta of ['/reto/verb-pop', '/reto/mimica', '/reto/verb-pop/']) assert.equal(pideApodo(ruta, false), true, ruta)
+  })
+
+  test('/reto (el menú de juegos) y /estudio no la activan', () => {
+    for (const ruta of ['/reto', '/reto/', '/estudio', '/estudio/3', '/estudio/3/pop', '/', '/ranking']) {
+      assert.equal(pideApodo(ruta, false), false, ruta)
+    }
+  })
+
+  test('con el apodo ya elegido no vuelve a salir', () => {
+    assert.equal(pideApodo('/reto/verb-pop', true), false)
+  })
+
+  test('la marca apodoElegido es la que decide', () => {
+    leerApodo()
+    assert.equal(pideApodo('/reto/verb-pop', apodoElegido()), true)
+    elegirApodo('Magic', 'Owl')
+    assert.equal(pideApodo('/reto/verb-pop', apodoElegido()), false)
+  })
+})
+
 describe('mejor de la semana', () => {
   test('se queda con la mayor y empieza de cero otra semana', () => {
     assert.equal(leerMejorSemana('verb_pop', '2026-W46'), 0)
@@ -92,19 +117,56 @@ describe('mejor de la semana', () => {
     assert.equal(leerMejorSemana('verb_pop', '2026-W47'), 0)
     assert.equal(guardarMejorSemana('verb_pop', '2026-W47', 500), 500)
   })
+
+  test('la primera partida de la semana no es récord', () => {
+    assert.deepEqual(registrarPartidaSemana('verb_pop', '2026-W46', 1200), { mejorSemana: 1200, nuevoRecord: false })
+  })
+
+  test('mejorar la de la semana sí es récord; igualarla o bajar, no', () => {
+    registrarPartidaSemana('verb_pop', '2026-W46', 1200)
+    assert.deepEqual(registrarPartidaSemana('verb_pop', '2026-W46', 1200), { mejorSemana: 1200, nuevoRecord: false })
+    assert.deepEqual(registrarPartidaSemana('verb_pop', '2026-W46', 800), { mejorSemana: 1200, nuevoRecord: false })
+    assert.deepEqual(registrarPartidaSemana('verb_pop', '2026-W46', 1500), { mejorSemana: 1500, nuevoRecord: true })
+    assert.equal(leerMejorSemana('verb_pop', '2026-W46'), 1500)
+  })
+
+  test('el cambio de semana lo reinicia: la mejor de otra semana cuenta como 0', () => {
+    registrarPartidaSemana('verb_pop', '2026-W46', 3000)
+    assert.equal(leerMejorSemana('verb_pop', '2026-W47'), 0)
+    assert.deepEqual(registrarPartidaSemana('verb_pop', '2026-W47', 400), { mejorSemana: 400, nuevoRecord: false })
+    assert.deepEqual(registrarPartidaSemana('verb_pop', '2026-W47', 450), { mejorSemana: 450, nuevoRecord: true })
+  })
+
+  test('una partida de 0 puntos no deja récord previo', () => {
+    assert.deepEqual(registrarPartidaSemana('verb_pop', '2026-W46', 0), { mejorSemana: 0, nuevoRecord: false })
+    assert.deepEqual(registrarPartidaSemana('verb_pop', '2026-W46', 300), { mejorSemana: 300, nuevoRecord: false })
+  })
 })
 
 describe('pantalla de fin de Challenge', () => {
-  const resultado = { fase: FASE.FIN_TIEMPO, puntos: 1850, mejorSemana: 3200 }
+  const resultado = { fase: FASE.FIN_TIEMPO, puntos: 1850, mejorSemana: 3200, nuevoRecord: false, aciertos: 14, mejorCombo: 3 }
   const pintar = (envio, otro = resultado) =>
     renderToStaticMarkup(createElement(CuerpoResultado, { resultado: otro, envio, alReintentar: () => {}, alRepetir: () => {} }))
   const texto = (html) => html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ')
 
-  test('puntuación y mejor de la semana, sin las tarjetas de antes', () => {
-    const html = texto(pintar(null))
-    assert.match(html, new RegExp(`${v.puntos} ${textos.numero(1850)}`))
-    assert.match(html, new RegExp(`${v.mejorSemana} ${textos.numero(3200)}`))
-    for (const fuera of [v.aciertos, v.mejorCombo, v.record, v.nuevoRecord]) assert.ok(!html.includes(fuera), fuera)
+  test('puntuación en grande y debajo la mejor de la semana', () => {
+    const html = pintar(null)
+    assert.match(html, new RegExp(`class="resultado-final__puntos"><span[^>]*>${v.puntos} </span>${textos.numero(1850)}</p>`))
+    assert.match(html, new RegExp(`>${v.mejorSemanaN(textos.numero(3200))}<`))
+    assert.ok(html.indexOf('resultado-final__puntos') < html.indexOf('resultado-final__mejor'))
+  })
+
+  test('una sola línea pequeña con Correct y Best combo; sin el Best de siempre', () => {
+    const html = pintar(null)
+    assert.equal(v.detalle(14, 3), 'Correct 14 · Best combo 3')
+    assert.match(html, new RegExp(`class="resultado-final__detalle">${v.detalle(14, 3)}<`))
+    assert.doesNotMatch(texto(html), new RegExp(`\\b${v.record}:`))
+  })
+
+  test('"New record!" solo cuando toca, con estrella además del color', () => {
+    assert.ok(!pintar(null).includes(v.nuevoRecord))
+    const html = pintar(null, { ...resultado, puntos: 3300, mejorSemana: 3300, nuevoRecord: true })
+    assert.match(html, new RegExp(`class="resultado-final__record"><svg[^>]*aria-hidden="true"[^>]*>.*</svg>${v.nuevoRecord}</p>`))
   })
 
   test('título según cómo acabó', () => {
@@ -112,7 +174,7 @@ describe('pantalla de fin de Challenge', () => {
     assert.match(pintar(null, { ...resultado, fase: FASE.FIN_VIDAS }), new RegExp(v.finVidas))
   })
 
-  test('tres salidas: Play again, Ranking y Home', () => {
+  test('tres salidas con texto: Play again, Ranking y Home', () => {
     const html = pintar(null)
     assert.match(html, new RegExp(`<button[^>]*>${v.otraVez}</button>`))
     assert.match(html, new RegExp(`<a href="/ranking"[^>]*>${v.irARanking}</a>`))
@@ -126,13 +188,14 @@ describe('pantalla de fin de Challenge', () => {
     assert.match(pintar({ estado: 'igual', apodo: 'MagicOwl12', clase: 'CLASE1' }), />Saved as MagicOwl12 · Class CLASE1</)
   })
 
-  test('sin párrafos: como mucho la línea del ranking', () => {
-    assert.equal((pintar(null).match(/<p/g) ?? []).length, 0)
-    assert.equal(pintar({ estado: 'guardada', apodo: 'MagicOwl12', clase: null }).match(/<p/g).length, 1)
+  test('sin ranking, enviando o con error no dice "Saved as"', () => {
+    assert.ok(!pintar(null).includes('Saved as'))
+    assert.ok(!pintar({ estado: 'enviando' }).includes('Saved as'))
+    assert.ok(!pintar({ estado: 'error', motivo: 'sinConexion' }).includes('Saved as'))
   })
 
   test('enviando y error con reintento', () => {
-    assert.match(pintar({ estado: 'enviando' }), new RegExp(textos.ranking.enviando))
+    assert.match(pintar({ estado: 'enviando' }), />Sending…</)
     const html = pintar({ estado: 'error', motivo: 'sinConexion' })
     assert.ok(html.includes(textos.ranking.errores.sinConexion))
     assert.match(html, new RegExp(`>${textos.ranking.reintentar}</button>`))

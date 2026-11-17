@@ -3,7 +3,7 @@
 import { llamarRpc } from './supabase.js'
 import { motivoDeError } from './errores.js'
 import { idJugador } from './jugador.js'
-import { leerApodo, cambiarApodo } from './apodo.js'
+import { leerApodo, cambiarApodo, elegirApodo } from './apodo.js'
 import { leerClase } from './clase.js'
 import { leer, guardar } from './almacen.js'
 import { JUEGOS } from '../motor/config.js'
@@ -99,6 +99,16 @@ export async function avisarCambioPerfil() {
     else reenviados.push(j)
   }
   return { reenviados, pendientes }
+}
+
+// Primer uso de Challenge: guarda el apodo elegido (pone la marca apodoElegido al
+// momento) y, si cambia y ya hay envíos esta semana, aplica el perfil pendiente.
+// Devuelve { apodo, reenviados, pendientes }; apodo es null si las piezas no valen.
+export async function confirmarPrimerApodo(adjetivo, animal) {
+  const antes = leerApodo()
+  const apodo = elegirApodo(adjetivo, animal)
+  if (!apodo || apodo === antes) return { apodo, reenviados: [], pendientes: [] }
+  return { apodo, ...(await avisarCambioPerfil()) }
 }
 
 // Mientras haya perfil pendiente, la fila que el servidor tiene del jugador lleva

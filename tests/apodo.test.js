@@ -7,13 +7,13 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 
 import { configurarSupabase } from '../src/datos/supabase.js'
-import { ADJETIVOS, ANIMALES, piezasDelApodo, elegirApodo, leerApodo } from '../src/datos/apodo.js'
-import { enviarPuntuacion, avisarCambioPerfil } from '../src/datos/ranking.js'
+import { ADJETIVOS, ANIMALES, piezasDelApodo, elegirApodo, leerApodo, apodoElegido } from '../src/datos/apodo.js'
+import { enviarPuntuacion, avisarCambioPerfil, confirmarPrimerApodo } from '../src/datos/ranking.js'
 import { guardarClase } from '../src/datos/clase.js'
 import { aEstado, cargarVista, VISTA } from '../src/componentes/ranking/estado.js'
 import { SelectorApodo } from '../src/componentes/ranking/SelectorApodo.js'
 import { CuerpoRanking } from '../src/componentes/ranking/CuerpoRanking.js'
-import { semanaISO } from '../src/motor/semana.js'
+import { semanaISO, diaMadrid } from '../src/motor/semana.js'
 
 const SCHEMA = readFileSync(new URL('../supabase/schema.sql', import.meta.url), 'utf8')
 const LISTAS = JSON.parse(readFileSync(new URL('../src/contenido/apodos.json', import.meta.url), 'utf8'))
@@ -319,5 +319,48 @@ describe('fila propia con perfil pendiente', () => {
   test('aEstado sin datos de pendiente no toca nada', () => {
     const estado = aEstado({ ok: true, filas: [{ posicion: 1, nick: 'BraveFox12', puntos: 3200 }] })
     assert.deepEqual(nicks(estado), ['BraveFox12'])
+  })
+})
+
+describe('primer uso de Challenge: Start con el apodo', () => {
+  test('sin envíos esta semana: guarda, pone la marca y no llama al servidor', async () => {
+    poner('apodo', 'BraveFox12')
+    const r = await confirmarPrimerApodo('Magic', 'Owl')
+    assert.deepEqual(r, { apodo: 'MagicOwl12', reenviados: [], pendientes: [] })
+    assert.equal(apodoElegido(), true)
+    assert.equal(llamadas.length, 0)
+  })
+
+  test('mismo apodo que el propuesto: marca puesta y nada pendiente', async () => {
+    poner('apodo', 'MagicOwl12')
+    poner('enviado:verb_pop', { semana: semanaISO(), puntos: 3200, clase: null })
+    assert.deepEqual(await confirmarPrimerApodo('Magic', 'Owl'), { apodo: 'MagicOwl12', reenviados: [], pendientes: [] })
+    assert.equal(apodoElegido(), true)
+    assert.equal(llamadas.length, 0)
+  })
+
+  test('apodo distinto con envíos esta semana: rige el perfil pendiente', async () => {
+    poner('apodo', 'BraveFox12')
+    poner('enviado:verb_pop', { semana: semanaISO(), puntos: 3200, clase: null })
+    const r = await confirmarPrimerApodo('Magic', 'Owl')
+    assert.deepEqual(r, { apodo: 'MagicOwl12', reenviados: ['verb_pop'], pendientes: [] })
+    assert.equal(envios()[0].args.p_nick, 'MagicOwl12')
+    assert.equal(envios()[0].args.p_score, 3200)
+  })
+
+  test('si ya hubo un cambio hoy, queda pendiente para la próxima partida', async () => {
+    poner('apodo', 'BraveFox12')
+    poner('enviado:verb_pop', { semana: semanaISO(), puntos: 3200, clase: null })
+    poner('perfilReenviado', diaMadrid())
+    assert.deepEqual(await confirmarPrimerApodo('Magic', 'Owl'), { apodo: 'MagicOwl12', reenviados: [], pendientes: ['verb_pop'] })
+    assert.equal(llamadas.length, 0)
+    assert.equal(sacar('perfilPendiente:verb_pop'), true)
+  })
+
+  test('piezas de fuera: ni apodo ni marca', async () => {
+    poner('apodo', 'BraveFox12')
+    assert.deepEqual(await confirmarPrimerApodo('Zippy', 'Owl'), { apodo: null, reenviados: [], pendientes: [] })
+    assert.equal(apodoElegido(), false)
+    assert.equal(leerApodo(), 'BraveFox12')
   })
 })

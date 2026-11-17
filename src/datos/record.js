@@ -32,3 +32,13 @@ export function guardarMejorSemana(juego, semana, puntos) {
   guardar(claveSemana(juego), { semana, puntos })
   return puntos
 }
+
+// Fin de una partida: compara con la mejor de la semana ANTES de guardarla.
+// Es récord solo si había una mejor previa mayor que 0 y esta la supera;
+// la primera partida de la semana no cuenta como récord.
+// Devuelve { mejorSemana, nuevoRecord }.
+export function registrarPartidaSemana(juego, semana, puntos) {
+  const anterior = leerMejorSemana(juego, semana)
+  const nuevoRecord = anterior > 0 && Number.isInteger(puntos) && puntos > anterior
+  return { mejorSemana: guardarMejorSemana(juego, semana, puntos), nuevoRecord }
+}
