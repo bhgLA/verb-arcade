@@ -3,7 +3,6 @@ import { textos } from '../textos.js'
 import {
   verbos,
   guardarRecordSiMejor,
-  leerRecord,
   registrarPartidaSemana,
   enviarPuntuacion,
   supabaseConfigurado,
@@ -21,6 +20,7 @@ import { useReloj } from '../componentes/verbpop/useReloj.js'
 import { useTeclado } from '../componentes/verbpop/useTeclado.js'
 import { estadosDeBloques } from '../componentes/verbpop/estados.js'
 import { CuerpoResultado } from '../componentes/verbpop/CuerpoResultado.js'
+import { lineaMejorSemana } from '../componentes/verbpop/introReto.js'
 import { Enlace } from '../rutas.jsx'
 
 const JUEGO = 'verb_pop'
@@ -117,7 +117,7 @@ export default function RetoVerbPop({ empezarYa = false }) {
   }, [])
 
   const alTerminar = useCallback((s) => {
-    // El récord de siempre se sigue guardando: lo usan la intro y el menú de Challenge.
+    // El récord de siempre se sigue guardando: lo usan la portada y el menú de Challenge.
     guardarRecordSiMejor(JUEGO, s.puntos)
     // "New record!" se decide antes de actualizar la mejor de la semana.
     const { mejorSemana, nuevoRecord } = registrarPartidaSemana(JUEGO, semana, s.puntos)
@@ -153,18 +153,14 @@ export default function RetoVerbPop({ empezarYa = false }) {
     )
   }
 
-  const record = leerRecord(JUEGO)
+  const mejorSemana = lineaMejorSemana(JUEGO, semana)
   return (
     <PantallaMundo mundo={mundo} olas className="intro-juego">
       <BarraSuperior atras="/reto" izquierda={<Chip mundo={mundo} />} />
       <h1 className="titulo-grande">{textos.verbPop.titulo}</h1>
       <p className="texto-mundo">{textos.verbPop.semana(semana, mundo)}</p>
       <p className="texto-mundo">{textos.verbPop.instrucciones}</p>
-      {record > 0 && (
-        <p className="texto-mundo">
-          {textos.verbPop.record}: {textos.numero(record)}
-        </p>
-      )}
+      {mejorSemana && <p className="texto-mundo">{mejorSemana}</p>}
       <button type="button" className="pildora" onClick={empezar} autoFocus>
         {textos.verbPop.empezar}
       </button>
