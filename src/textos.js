@@ -92,7 +92,7 @@ export const textos = {
       vacio: 'No scores yet',
       sinConexion: "See who's on top",
     },
-    enviando: 'Sending to the ranking…',
+    enviando: 'Sending…',
     guardada: "Saved in this week's ranking",
     yaEstaba: 'Your best this week is already in the ranking',
     reintentar: 'Try again',
@@ -189,6 +189,9 @@ export const textos = {
     otraVez: 'Play again',
     // Fin de Challenge: puntuación, mejor de la semana, dónde se ha guardado y tres salidas.
     mejorSemana: 'Your best this week',
+    mejorSemanaN: (n) => `Your best this week: ${n}`,
+    // Una sola línea pequeña bajo la puntuación.
+    detalle: (aciertos, combo) => `Correct ${aciertos} · Best combo ${combo}`,
     guardadaComo: (apodo, clase) => (clase ? `Saved as ${apodo} · Class ${clase}` : `Saved as ${apodo}`),
     irARanking: 'Ranking',
     irAInicio: 'Home',
