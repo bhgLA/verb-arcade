@@ -202,7 +202,7 @@
   letter-spacing: -0.02em;
   color: var(--tinta);
 }
-/* "No score yet" ocupa el hueco del número; si no cabe junto a la píldora, baja de línea. */
+/* "No score yet" ocupa el hueco del número. */
 .ficha-inicio__numero--vacio { font-size: 24px; line-height: 1.1; letter-spacing: -0.01em; }
 .ficha-inicio__de { font-family: var(--fuente-texto); font-size: 20px; font-weight: 700; letter-spacing: 0; }
 
@@ -217,10 +217,17 @@
 .ficha-inicio__barra--cartas { margin-top: 10px; }
 .ficha-inicio__barra-relleno { display: block; height: 100%; border-radius: 5px; background: var(--fondo); }
 
-.ficha-inicio__reto { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
-.ficha-inicio__mejor { min-width: 0; }
+/* Ficha Challenge: la píldora de días va arriba a la derecha, a la altura del
+   icono (la .tesela es position: relative), y deja todo el ancho de la ficha
+   (244 px) a "Your best this week" y al valor, cada uno en una sola línea. */
+.ficha-inicio__reto { display: block; }
+.ficha-inicio__mejor { display: block; }
+.ficha-inicio__reto .ficha-inicio__dato,
+.ficha-inicio__reto .ficha-inicio__numero { white-space: nowrap; }
 .ficha-inicio__pildora {
-  flex-shrink: 0;
+  position: absolute;
+  top: 33px;
+  right: 24px;
   height: 34px;
   padding: 0 14px;
   border-radius: 17px;
