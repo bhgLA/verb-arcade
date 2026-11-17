@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { textos } from '../textos.js'
-import { verbos, verbosDelMundo, leerProgreso, leerRecord, leerRanking } from '../datos/index.js'
+import { verbos, verbosDelMundo, leerProgreso, leerRanking } from '../datos/index.js'
+import { numeroMejorSemana } from '../componentes/mejorSemana.js'
 import { progresoDe, contarDesbloqueadas } from '../motor/estudio.js'
 import { semanaISO, numeroDeSemana, mundoDeLaSemana, diasHastaElLunes } from '../motor/semana.js'
 import Escenario from '../componentes/Escenario.jsx'
@@ -75,7 +76,7 @@ export default function Inicio() {
       numeroSemana: numeroDeSemana(semana),
       mundoSemana: mundoDeLaSemana(semana),
       dias: diasHastaElLunes(),
-      record: leerRecord('verb_pop'),
+      mejorSemana: numeroMejorSemana('verb_pop', semana),
     }
   }, [])
   const lider = useLider()
@@ -116,9 +117,9 @@ export default function Inicio() {
           >
             <span className="ficha-inicio__reto">
               <span className="ficha-inicio__mejor">
-                <span className="ficha-inicio__dato">{textos.inicio.reto.mejor}</span>
-                {datos.record > 0 ? (
-                  <span className="ficha-inicio__numero">{textos.numero(datos.record)}</span>
+                <span className="ficha-inicio__dato">{textos.verbPop.mejorSemana}</span>
+                {datos.mejorSemana ? (
+                  <span className="ficha-inicio__numero">{datos.mejorSemana}</span>
                 ) : (
                   <span className="ficha-inicio__numero ficha-inicio__numero--vacio">{textos.inicio.reto.sinPuntos}</span>
                 )}

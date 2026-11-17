@@ -21,7 +21,7 @@ import { leerMejorSemana, guardarMejorSemana, registrarPartidaSemana } from '../
 import { pideApodo } from '../src/guarda.js'
 import { motivoDeError, MOTIVOS } from '../src/datos/errores.js'
 import { REINTENTABLES } from '../src/componentes/verbpop/CuerpoResultado.js'
-import { lineaMejorSemana } from '../src/componentes/verbpop/introReto.js'
+import { lineaMejorSemana, numeroMejorSemana } from '../src/componentes/mejorSemana.js'
 import { CuerpoResultado } from '../src/componentes/verbpop/CuerpoResultado.js'
 import { SelectorApodo } from '../src/componentes/ranking/SelectorApodo.js'
 import { FASE } from '../src/motor/partida.js'
@@ -245,7 +245,7 @@ describe('Try again en el fin de Challenge', () => {
   })
 })
 
-describe('intro de Verb Pop', () => {
+describe('mejor de la semana en intro, menú de /reto y portada', () => {
   test('sin partidas esta semana no hay línea de mejor semanal', () => {
     assert.equal(lineaMejorSemana('verb_pop', '2026-W47'), null)
   })
@@ -263,6 +263,26 @@ describe('intro de Verb Pop', () => {
 
   test('si la semana cambia, lo de la anterior no se muestra', () => {
     registrarPartidaSemana('verb_pop', '2026-W46', 3000)
+    assert.equal(lineaMejorSemana('verb_pop', '2026-W47'), null)
+  })
+})
+
+describe('portada: número de la ficha de Challenge', () => {
+  test('con 0 no hay número (la portada pone "No score yet")', () => {
+    assert.equal(numeroMejorSemana('verb_pop', '2026-W47'), null)
+    registrarPartidaSemana('verb_pop', '2026-W47', 0)
+    assert.equal(numeroMejorSemana('verb_pop', '2026-W47'), null)
+  })
+
+  test('la mejor de esta semana, con separador de miles', () => {
+    registrarPartidaSemana('verb_pop', '2026-W47', 2450)
+    assert.equal(numeroMejorSemana('verb_pop', '2026-W47'), '2,450')
+  })
+
+  test('lo de otra semana no cuenta, aunque el récord de siempre sea alto', () => {
+    poner('record:verb_pop', 9000)
+    registrarPartidaSemana('verb_pop', '2026-W46', 3000)
+    assert.equal(numeroMejorSemana('verb_pop', '2026-W47'), null)
     assert.equal(lineaMejorSemana('verb_pop', '2026-W47'), null)
   })
 })

@@ -20,7 +20,7 @@ import { useReloj } from '../componentes/verbpop/useReloj.js'
 import { useTeclado } from '../componentes/verbpop/useTeclado.js'
 import { estadosDeBloques } from '../componentes/verbpop/estados.js'
 import { CuerpoResultado } from '../componentes/verbpop/CuerpoResultado.js'
-import { lineaMejorSemana } from '../componentes/verbpop/introReto.js'
+import { lineaMejorSemana } from '../componentes/mejorSemana.js'
 import { Enlace } from '../rutas.jsx'
 
 const JUEGO = 'verb_pop'
@@ -117,7 +117,7 @@ export default function RetoVerbPop({ empezarYa = false }) {
   }, [])
 
   const alTerminar = useCallback((s) => {
-    // El récord de siempre se sigue guardando: lo usan la portada y el menú de Challenge.
+    // El récord de siempre se sigue guardando, aunque hoy ninguna pantalla lo enseña.
     guardarRecordSiMejor(JUEGO, s.puntos)
     // "New record!" se decide antes de actualizar la mejor de la semana.
     const { mejorSemana, nuevoRecord } = registrarPartidaSemana(JUEGO, semana, s.puntos)
