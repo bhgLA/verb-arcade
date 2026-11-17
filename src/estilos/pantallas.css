@@ -475,10 +475,38 @@
    Un botón principal (.pildora con relieve en --acento) y dos secundarios
    (.pildora--pequena) debajo, en fila. */
 .resultado-final__datos--uno { grid-template-columns: minmax(0, 260px); justify-content: center; }
-/* Fin de Challenge: puntuación y mejor de la semana, una al lado de otra. */
-.resultado-final__datos--dos { grid-template-columns: repeat(2, minmax(0, 300px)); justify-content: center; }
-@media (max-width: 560px) {
-  .resultado-final__datos--dos { grid-template-columns: minmax(0, 1fr); }
+
+/* Fin de Challenge: la puntuación es lo más grande; el título baja un escalón.
+   Debajo, la mejor de la semana, "New record!" (placa amarilla con estrella, no
+   solo color) y una línea pequeña con aciertos y mejor combo. */
+.resultado-reto .titulo-grande { font-size: clamp(40px, 5vw, 64px); }
+.resultado-final__marcador { display: grid; justify-items: center; gap: 10px; text-align: center; color: var(--blanco); }
+.resultado-final__puntos {
+  font-family: var(--fuente-titulo);
+  font-weight: 800;
+  font-size: clamp(88px, 13vw, 168px);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+}
+.resultado-final__mejor { font-family: var(--fuente-titulo); font-weight: 800; font-size: clamp(24px, 3vw, 34px); }
+.resultado-final__record {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 22px 8px;
+  border-radius: 999px;
+  background: var(--acento);
+  color: var(--tinta);
+  box-shadow: 0 6px 0 var(--sombra-acento);
+  font-family: var(--fuente-titulo);
+  font-weight: 800;
+  font-size: 28px;
+  animation: resumen-entra 500ms cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+.resultado-final__estrella { flex: none; }
+.resultado-final__detalle { font-size: 18px; color: var(--blanco); }
+@media (prefers-reduced-motion: reduce) {
+  .resultado-final__record { animation: none; }
 }
 
 /* Primer Challenge: el selector de apodo en una tarjeta, con "Start" como botón principal. */
